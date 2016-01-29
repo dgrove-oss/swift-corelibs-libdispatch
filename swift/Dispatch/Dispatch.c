@@ -13,29 +13,26 @@
 #include <dispatch/dispatch.h>
 
 __attribute__((visibility("hidden")))
-extern "C" dispatch_queue_attr_t 
+dispatch_queue_attr_t 
 _swift_dispatch_queue_concurrent(void) {
   return DISPATCH_QUEUE_CONCURRENT;
 }
 
 __attribute__((visibility("hidden")))
-extern "C" dispatch_data_t
+dispatch_data_t
 _swift_dispatch_data_empty(void) {
   return dispatch_data_empty;
 }
 
 #define SOURCE(t)                               \
   __attribute__((visibility("hidden")))         \
-  extern "C" dispatch_source_type_t             \
+  dispatch_source_type_t                        \
   _swift_dispatch_source_type_##t(void) {       \
     return DISPATCH_SOURCE_TYPE_##t;            \
   }
 
 SOURCE(DATA_ADD)
 SOURCE(DATA_OR)
-SOURCE(MACH_SEND)
-SOURCE(MACH_RECV)
-SOURCE(MEMORYPRESSURE)
 SOURCE(PROC)
 SOURCE(READ)
 SOURCE(SIGNAL)

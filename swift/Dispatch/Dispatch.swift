@@ -64,11 +64,14 @@ public var DISPATCH_QUEUE_PRIORITY_BACKGROUND: dispatch_queue_priority_t {
   return -32768
 }
 
+/*
+FIXME: LINUX_PORT:  qos_class_t not being imported
 @warn_unused_result
 public func dispatch_get_global_queue(identifier: qos_class_t,
                                       _ flags: UInt) -> dispatch_queue_t {
   return dispatch_get_global_queue(Int(identifier.rawValue), flags)
 }
+*/
 
 public var DISPATCH_QUEUE_CONCURRENT: dispatch_queue_attr_t {
   return _swift_dispatch_queue_concurrent()
@@ -89,18 +92,6 @@ internal func _swift_dispatch_data_empty() -> dispatch_data_t
 
 // dispatch/source.h
 // FIXME: DISPATCH_SOURCE_TYPE_*
-public var DISPATCH_MACH_SEND_DEAD: dispatch_source_mach_send_flags_t {
-  return 1
-}
-public var DISPATCH_MEMORYPRESSURE_NORMAL: dispatch_source_memorypressure_flags_t {
-  return 1
-}
-public var DISPATCH_MEMORYPRESSURE_WARN: dispatch_source_memorypressure_flags_t {
-  return 2
-}
-public var DISPATCH_MEMORYPRESSURE_CRITICAL: dispatch_source_memorypressure_flags_t {
-  return 4
-}
 public var DISPATCH_PROC_EXIT: dispatch_source_proc_flags_t {
   return 0x80000000
 }
@@ -121,15 +112,6 @@ public var DISPATCH_SOURCE_TYPE_DATA_ADD: dispatch_source_type_t {
 }
 public var DISPATCH_SOURCE_TYPE_DATA_OR: dispatch_source_type_t {
   return _swift_dispatch_source_type_data_or()
-}
-public var DISPATCH_SOURCE_TYPE_MACH_SEND: dispatch_source_type_t {
-  return _swift_dispatch_source_type_mach_send()
-}
-public var DISPATCH_SOURCE_TYPE_MACH_RECV: dispatch_source_type_t {
-  return _swift_dispatch_source_type_mach_recv()
-}
-public var DISPATCH_SOURCE_TYPE_MEMORYPRESSURE: dispatch_source_type_t {
-  return _swift_dispatch_source_type_memorypressure()
 }
 public var DISPATCH_SOURCE_TYPE_READ: dispatch_source_type_t {
   return _swift_dispatch_source_type_read()
@@ -157,19 +139,6 @@ internal func _swift_dispatch_source_type_data_add() -> dispatch_source_type_t
 @warn_unused_result
 @_silgen_name("_swift_dispatch_source_type_DATA_OR")
 internal func _swift_dispatch_source_type_data_or() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_MACH_SEND")
-internal func _swift_dispatch_source_type_mach_send() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_MACH_RECV")
-internal func _swift_dispatch_source_type_mach_recv() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_MEMORYPRESSURE")
-internal func _swift_dispatch_source_type_memorypressure()
-  -> dispatch_source_type_t
 
 @warn_unused_result
 @_silgen_name("_swift_dispatch_source_type_PROC")
