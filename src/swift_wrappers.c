@@ -12,26 +12,26 @@
 
 #include <dispatch/dispatch.h>
 
-__attribute__((visibility("hidden")))
+DISPATCH_EXPORT
 dispatch_queue_attr_t 
 _swift_dispatch_queue_serial(void) {
   return DISPATCH_QUEUE_SERIAL;
 }
 
-__attribute__((visibility("hidden")))
+DISPATCH_EXPORT
 dispatch_queue_attr_t 
 _swift_dispatch_queue_concurrent(void) {
   return DISPATCH_QUEUE_CONCURRENT;
 }
 
-__attribute__((visibility("hidden")))
+DISPATCH_EXPORT
 dispatch_data_t
 _swift_dispatch_data_empty(void) {
   return dispatch_data_empty;
 }
 
 #define SOURCE(t)                               \
-  __attribute__((visibility("hidden")))         \
+  DISPATCH_EXPORT                               \
   dispatch_source_type_t                        \
   _swift_dispatch_source_type_##t(void) {       \
     return DISPATCH_SOURCE_TYPE_##t;            \
