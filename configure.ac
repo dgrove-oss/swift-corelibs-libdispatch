@@ -101,6 +101,18 @@ AS_IF([test "x$enable_apple_tsd_optimizations" = "xyes"],
     [Define to use non-portable pthread TSD optimizations for Mac OS X)])]
 )
 
+#
+# Enable building Swift overlay support into libdispatch
+#
+AC_ARG_WITH([swift-sdk],
+  [AS_HELP_STRING([--with-swift-sdk], [Specify path to Swift SDK])],
+  [swift_sdk_path=${withval}
+   AC_DEFINE(HAVE_SWIFT, 1, [Define if building for Swift])  
+   have_swift=true],
+  [have_swift=false]
+)
+AM_CONDITIONAL(HAVE_SWIFT, $have_swift)
+
 AC_USE_SYSTEM_EXTENSIONS
 AM_INIT_AUTOMAKE([foreign no-dependencies subdir-objects])
 LT_INIT([disable-static])
