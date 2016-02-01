@@ -2,5 +2,5 @@ module Dispatch [system] {
     umbrella header "/usr/local/include/dispatch/dispatch.h"
     requires blocks
     export *
-	link "dispatch"
+    link "dispatch"
 }
