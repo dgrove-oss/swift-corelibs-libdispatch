@@ -14,6 +14,12 @@
 
 __attribute__((visibility("hidden")))
 dispatch_queue_attr_t 
+_swift_dispatch_queue_serial(void) {
+  return DISPATCH_QUEUE_SERIAL;
+}
+
+__attribute__((visibility("hidden")))
+dispatch_queue_attr_t 
 _swift_dispatch_queue_concurrent(void) {
   return DISPATCH_QUEUE_CONCURRENT;
 }
