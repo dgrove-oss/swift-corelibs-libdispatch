@@ -104,11 +104,10 @@ DTRACE_SOURCES=provider.h
 endif
 
 if HAVE_SWIFT
-SWIFT_DISPATCH_SOURCES=		\
-	swift_wrappers.c
+libdispatch_la_SOURCES+=swift_wrappers.c
 endif
 
-BUILT_SOURCES=$(MIG_SOURCES) $(DTRACE_SOURCES) $(SWIFT_DISPATCH_SOURCES)
+BUILT_SOURCES=$(MIG_SOURCES) $(DTRACE_SOURCES)
 nodist_libdispatch_la_SOURCES=$(BUILT_SOURCES)
 CLEANFILES=$(BUILT_SOURCES)
 DISTCLEANFILES=pthread_machdep.h pthread System mach objc
