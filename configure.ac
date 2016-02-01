@@ -107,7 +107,7 @@ AS_IF([test "x$enable_apple_tsd_optimizations" = "xyes"],
 AC_ARG_WITH([swift-sdk],
   [AS_HELP_STRING([--with-swift-sdk], [Specify path to Swift SDK])],
   [swift_sdk_path=${withval}
-   AC_DEFINE(HAVE_SWIFT, 1, [Define if building for Swift])  
+   AC_DEFINE(HAVE_SWIFT, 1, [Define if building for Swift])
    have_swift=true],
   [have_swift=false]
 )
