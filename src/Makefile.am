@@ -46,6 +46,9 @@ libdispatch_la_SOURCES=		\
 	shims/tsd.h				\
 	shims/yield.h
 
+EXTRA_libdispatch_la_SOURCES=
+EXTRA_libdispatch_la_DEPENDENCIES=
+
 AM_CPPFLAGS=-I$(top_builddir) -I$(top_srcdir) \
 	-I$(top_srcdir)/private -I$(top_srcdir)/os
 
@@ -105,6 +108,15 @@ endif
 
 if HAVE_SWIFT
 libdispatch_la_SOURCES+=swift_wrappers.c
+EXTRA_libdispatch_la_SOURCES+=Dispatch/Dispatch.swift
+EXTRA_libdispatch_la_DEPENDENCIES+=Dispatch/Dispatch.o
+libdispatch_la_LIBADD+=Dispatch/Dispatch.o
+
+.swift.o:
+	$(SWIFTC) -I . -parse-as-library -Xcc -fblocks -c -o $@ $?
+
+.swift.modulemap:
+	$(SWIFTC) -parse-as-library -emit-module $@
 endif
 
 BUILT_SOURCES=$(MIG_SOURCES) $(DTRACE_SOURCES)
