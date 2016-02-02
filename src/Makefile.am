@@ -109,18 +109,25 @@ endif
 if HAVE_SWIFT
 libdispatch_la_SOURCES+=swift_wrappers.c
 EXTRA_libdispatch_la_SOURCES+=Dispatch/Dispatch.swift
-EXTRA_libdispatch_la_DEPENDENCIES+=Dispatch/Dispatch.o
-libdispatch_la_LIBADD+=Dispatch/Dispatch.o
+EXTRA_libdispatch_la_DEPENDENCIES+=$(abs_builddir)/Dispatch/Dispatch.o
+libdispatch_la_LIBADD+=$(abs_builddir)/Dispatch/Dispatch.o
+MODULEMAP_SOURCES=$(abs_builddir)/Dispatch/module.map $(abs_builddir)/Dispatch/module.map.installed
+SWIFTMODULE_OBJECTS=$(abs_builddir)/Dispatch.swiftmodule $(abs_builddir)/Dispatch.swiftdoc $(abs_builddir)/Dispatch/Dispatch.o
 
-.swift.o:
-	$(SWIFTC) -I . -parse-as-library -Xcc -fblocks -c -o $@ $?
+$(abs_builddir)/Dispatch/Dispatch.o: $(abs_srcdir)/Dispatch/Dispatch.swift $(abs_builddir)/Dispatch/Dispatch.swiftmodule
+	$(SWIFTC) -I . -parse-as-library -Xcc -fblocks -c -o $@ $<
 
-.swift.modulemap:
-	$(SWIFTC) -parse-as-library -emit-module $@
+$(abs_builddir)/Dispatch/Dispatch.swiftmodule:	$(abs_srcdir)/Dispatch/Dispatch.swift $(abs_builddir)/Dispatch/module.map
+	$(SWIFTC) -I . -Xcc -fblocks -parse-as-library -emit-module -emit-module-path $(abs_builddir) $< 
+
+$(abs_builddir)/Dispatch/module.map:	$(abs_srcdir)/Dispatch/module.map.in
+	m4 -DPREFIX=$(abs_top_srcdir) $< > $@
+	m4 -DPREFIX=$(prefix) $< > $@.installed
+
 endif
 
-BUILT_SOURCES=$(MIG_SOURCES) $(DTRACE_SOURCES)
+BUILT_SOURCES=$(MIG_SOURCES) $(DTRACE_SOURCES) $(MODULEMAP_SOURCES)
 nodist_libdispatch_la_SOURCES=$(BUILT_SOURCES)
-CLEANFILES=$(BUILT_SOURCES)
+CLEANFILES=$(BUILT_SOURCES) $(SWIFTMODULE_OBJECTS)
 DISTCLEANFILES=pthread_machdep.h pthread System mach objc
 
