@@ -133,7 +133,7 @@ $(abs_builddir)/Dispatch.swiftmodule: $(abs_srcdir)/swift/Dispatch.swift $(abs_b
 	$(SWIFTC) $(SWIFTC_FLAGS) -emit-module -emit-module-path $@ $<
 
 swiftdir=$(includedir)/Dispatch
-swift_HEADERS=$(abs_builddir)/module.map $(abs_builddir)/Dispatch.swiftmodule
+swift_HEADERS=$(abs_builddir)/module.map $(abs_builddir)/Dispatch.swiftmodule $(abs_builddir)/Dispatch.swiftdoc
 
 endif
 
