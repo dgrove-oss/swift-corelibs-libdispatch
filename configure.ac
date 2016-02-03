@@ -108,10 +108,12 @@ AC_ARG_WITH([swift-sdk],
   [AS_HELP_STRING([--with-swift-sdk], [Specify path to Swift SDK])],
   [swift_sdk_path=${withval}
    AC_DEFINE(HAVE_SWIFT, 1, [Define if building for Swift])
+   SWIFTC="$swift_sdk_path/bin/swiftc"
    have_swift=true],
   [have_swift=false]
 )
 AM_CONDITIONAL(HAVE_SWIFT, $have_swift)
+AC_SUBST([SWIFTC])
 
 AC_USE_SYSTEM_EXTENSIONS
 AM_INIT_AUTOMAKE([foreign no-dependencies subdir-objects])
