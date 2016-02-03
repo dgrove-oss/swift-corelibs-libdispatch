@@ -1,5 +1,8 @@
 provider.h
+module.map
 .libs
 *.lo
 *.la
+*.o
+*.swiftmodule
 
