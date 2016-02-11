@@ -23,8 +23,6 @@ dispatch_HEADERS=	\
 	source.h		\
 	time.h
 
-MODULEMAPS=module.map
-
 if HAVE_SWIFT
 dispatch_HEADERS+=module.map
 endif
