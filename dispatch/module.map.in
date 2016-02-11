@@ -1,0 +1,7 @@
+module Dispatch [system] {
+    umbrella header "dispatch.h"
+    ifelse(HAVE_SWIFT, true, requires blocks)
+    export *
+    link "dispatch"
+    ifelse(HAVE_SWIFT, true, link "BlocksRuntime")
+}
