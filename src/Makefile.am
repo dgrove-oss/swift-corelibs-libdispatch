@@ -2,7 +2,7 @@
 #
 #
 
-if SWIFT_INSTALL
+if HAVE_SWIFT
 swiftlibdir=${prefix}/lib/swift/linux
 swiftlib_LTLIBRARIES=libdispatch.la
 else
@@ -130,12 +130,9 @@ $(abs_builddir)/Dispatch.o: $(abs_srcdir)/swift/Dispatch.swift
 $(abs_builddir)/Dispatch.swiftmodule: $(abs_srcdir)/swift/Dispatch.swift
 	$(SWIFTC) $(SWIFTC_FLAGS) -emit-module -emit-module-path $@ $<
 
-if SWIFT_INSTALL
-swiftplatformlibdir=${prefix}/lib/swift/linux/${build_cpu}
-swiftplatformlib_HEADERS=$(abs_builddir)/Dispatch.swiftmodule $(abs_builddir)/Dispatch.swiftdoc
-else
-swiftdir=$(includedir)/dispatch
-swift_HEADERS=$(abs_builddir)/Dispatch.swiftmodule $(abs_builddir)/Dispatch.swiftdoc
+if HAVE_SWIFT
+swiftmoddir=${prefix}/lib/swift/linux/${build_cpu}
+swiftmod_HEADERS=$(abs_builddir)/Dispatch.swiftmodule $(abs_builddir)/Dispatch.swiftdoc
 endif
 
 endif
