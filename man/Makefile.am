@@ -2,7 +2,7 @@
 #
 #
 
-if !SWIFT_INSTALL
+if !HAVE_SWIFT
 dist_man3_MANS=					\
 	dispatch.3					\
 	dispatch_after.3			\

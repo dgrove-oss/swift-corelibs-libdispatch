@@ -2,7 +2,7 @@
 #
 #
 
-if SWIFT_INSTALL
+if HAVE_SWIFT
 osdir=${prefix}/lib/swift/os
 else
 osdir=$(includedir)/os

@@ -2,7 +2,7 @@
 #
 #
 
-if SWIFT_INSTALL
+if HAVE_SWIFT
 dispatchdir=${prefix}/lib/swift/dispatch
 else
 dispatchdir=$(includedir)/dispatch
@@ -16,7 +16,6 @@ dispatch_HEADERS=	\
 	group.h			\
 	introspection.h	\
 	io.h			\
-	module.map		\
 	object.h		\
 	once.h			\
 	queue.h			\
@@ -27,11 +26,6 @@ dispatch_HEADERS=	\
 MODULEMAPS=module.map
 
 if HAVE_SWIFT
-SWIFT_M4FLAGS=-DHAVE_SWIFT=true
+dispatch_HEADERS+=module.map
 endif
 
-$(builddir)/module.map:	 $(srcdir)/module.map.in
-	m4 $(SWIFT_M4FLAGS) $<  > $@
-
-BUILT_SOURCES=$(MODULEMAPS)
-CLEANFILES=$(BUILT_SOURCES)

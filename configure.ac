@@ -115,17 +115,6 @@ AC_ARG_WITH([swift-toolchain],
 AM_CONDITIONAL(HAVE_SWIFT, $have_swift)
 AC_SUBST([SWIFTC])
 
-#
-# Hijack install rules to install dispatch into a Swift install structure
-#
-AC_ARG_ENABLE([swift-install],
-  [AS_HELP_STRING([--enable-swift-install],
-    [Install libdispatch into a Swift install])],
-  [swift_install=true],
-  [swift_install=false]
-)
-AM_CONDITIONAL(SWIFT_INSTALL, $swift_install)
-
 AC_USE_SYSTEM_EXTENSIONS
 AM_INIT_AUTOMAKE([foreign no-dependencies subdir-objects])
 LT_INIT([disable-static])
