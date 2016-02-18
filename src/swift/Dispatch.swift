@@ -41,6 +41,7 @@ public var DISPATCH_IO_STRICT_INTERVAL: dispatch_io_interval_flags_t {
   return 1
 }
 
+// dispatch/queue.h
 public var DISPATCH_QUEUE_SERIAL: dispatch_queue_attr_t {
   return nil
 }
@@ -79,6 +80,33 @@ public var DISPATCH_QUEUE_CONCURRENT: dispatch_queue_attr_t {
 @warn_unused_result
 @_silgen_name("_swift_dispatch_queue_concurrent")
 internal func _swift_dispatch_queue_concurrent() -> dispatch_queue_attr_t
+
+
+// dispatch/object.h: suspend/resume for queue and source 
+public func dispatch_resume(obj:dispatch_queue_t) {
+  _swift_dispatch_resume_for_queue(obj)
+}
+@_silgen_name("_swift_dispatch_resume_for_queue")
+internal func _swift_dispatch_resume_for_queue(_:dispatch_queue_t) -> Void
+
+public func dispatch_resume(obj:dispatch_source_t) {
+  _swift_dispatch_resume_for_source(obj)
+}
+@_silgen_name("_swift_dispatch_resume_for_source")
+internal func _swift_dispatch_resume_for_source(_:dispatch_source_t) -> Void
+
+public func dispatch_suspend(obj:dispatch_queue_t) {
+  _swift_dispatch_suspend_for_queue(obj)
+}
+@_silgen_name("_swift_dispatch_suspend_for_queue")
+internal func _swift_dispatch_suspend_for_queue(_:dispatch_queue_t) -> Void
+
+public func dispatch_suspend(obj:dispatch_source_t) {
+  _swift_dispatch_suspend_for_source(obj)
+}
+@_silgen_name("_swift_dispatch_suspend_for_source")
+internal func _swift_dispatch_suspend_for_source(_:dispatch_source_t) -> Void
+
 
 // dispatch/data.h
 public var dispatch_data_empty: dispatch_data_t {

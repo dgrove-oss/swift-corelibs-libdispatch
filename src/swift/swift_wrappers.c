@@ -30,6 +30,49 @@ _swift_dispatch_data_empty(void) {
   return dispatch_data_empty;
 }
 
+DISPATCH_EXPORT
+void
+_swift_dispatch_resume_for_queue(dispatch_queue_t obj) {
+	dispatch_resume(obj);
+}
+DISPATCH_EXPORT
+void
+_swift_dispatch_resume_for_source(dispatch_source_t obj) {
+	dispatch_resume(obj);
+}
+
+DISPATCH_EXPORT
+void
+_swift_dispatch_suspend_for_queue(dispatch_queue_t obj) {
+	dispatch_suspend(obj);
+}
+DISPATCH_EXPORT
+void
+_swift_dispatch_suspend_for_source(dispatch_source_t obj) {
+	dispatch_suspend(obj);
+}
+
+// RR overloads for dispatch_object_t types exposed in public API
+#define OBJECT_T_RR_FUNS(t)				           \
+DISPATCH_EXPORT  								   \
+void										       \
+_swift_dispatch_retain_for_##t(dispatch_##t obj) { \
+	dispatch_retain(obj);						   \
+}                                                  \
+DISPATCH_EXPORT  								   \
+void										       \
+_swift_dispatch_release_for_##t(dispatch_##t obj) {\
+	dispatch_release(obj);						   \
+}
+
+OBJECT_T_RR_FUNS(queue_t)
+OBJECT_T_RR_FUNS(queue_attr_t)
+OBJECT_T_RR_FUNS(group_t)
+OBJECT_T_RR_FUNS(source_t)
+OBJECT_T_RR_FUNS(semaphore_t)
+OBJECT_T_RR_FUNS(io_t)
+
+
 #define SOURCE(t)                               \
   DISPATCH_EXPORT                               \
   dispatch_source_type_t                        \
