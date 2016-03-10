@@ -76,6 +76,7 @@
 #endif
 
 #if OS_OBJECT_USE_OBJC
+#error wtf
 #import <objc/NSObject.h>
 #define OS_OBJECT_CLASS(name) OS_##name
 #define OS_OBJECT_DECL_IMPL(name, ...) \
@@ -126,6 +127,13 @@
 #define OS_OBJECT_USE_OBJC_RETAIN_RELEASE 0
 #endif
 #endif
+#elif __has_feature(attribute_cf_returns_retained) && __has_feature(attribute_cf_consumed)
+#define OS_OBJECT_RETURNS_RETAINED __attribute__((cf_returns_retained))
+#define OS_OBJECT_CONSUMED __attribute__((cf_consumed))
+/*! @parseOnly */
+#define OS_OBJECT_BRIDGE
+#define OS_WARN_RESULT_NEEDS_RELEASE
+#define OS_OBJECT_USE_OBJC_RETAIN_RELEASE 0
 #else
 /*! @parseOnly */
 #define OS_OBJECT_RETURNS_RETAINED

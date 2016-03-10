@@ -71,7 +71,7 @@ private:
 #define DISPATCH_DECL(name) \
 		typedef struct name##_s : public dispatch_object_s {} *name##_t
 #define DISPATCH_GLOBAL_OBJECT(type, object) (&(object))
-#define DISPATCH_RETURNS_RETAINED
+#define DISPATCH_RETURNS_RETAINED OS_OBJECT_RETURNS_RETAINED
 #else /* Plain C */
 typedef union {
 	struct _os_object_s *_os_obj;
@@ -95,8 +95,7 @@ typedef union {
 #define DISPATCH_DECL(name) typedef struct name##_s *name##_t
 /*! @parseOnly */
 #define DISPATCH_GLOBAL_OBJECT(t, x) (&(x))
-/*! @parseOnly */
-#define DISPATCH_RETURNS_RETAINED
+#define DISPATCH_RETURNS_RETAINED OS_OBJECT_RETURNS_RETAINED
 #endif
 
 #ifdef __BLOCKS__

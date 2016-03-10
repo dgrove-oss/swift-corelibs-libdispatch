@@ -22,6 +22,34 @@
 public typealias dispatch_block_t = @convention(block) () -> Void
 
 //===----------------------------------------------------------------------===//
+// Stub classes
+//===----------------------------------------------------------------------===//
+
+public class DispatchObject {
+}
+
+public final class DispatchData : DispatchObject {
+}
+
+public final class DispatchGroup : DispatchObject {
+}
+
+public final class DispatchIO : DispatchObject {
+}
+
+public final class DispatchQueue : DispatchObject {
+}
+
+public final class DispatchQueueAttr : DispatchObject {
+}
+
+public final class DispatchSemaphore : DispatchObject {
+}
+
+public final class DispatchSource : DispatchObject {
+}
+
+//===----------------------------------------------------------------------===//
 // Macros
 // FIXME: rdar://16851050 update API so these import better
 //===----------------------------------------------------------------------===//
@@ -41,13 +69,13 @@ public var DISPATCH_IO_STRICT_INTERVAL: dispatch_io_interval_flags_t {
   return 1
 }
 
-public var DISPATCH_QUEUE_SERIAL: dispatch_queue_attr_t {
+public var DISPATCH_QUEUE_SERIAL: dispatch_queue_attr_t? {
   return nil
 }
-public var DISPATCH_CURRENT_QUEUE_LABEL: dispatch_queue_t {
+public var DISPATCH_CURRENT_QUEUE_LABEL: dispatch_queue_t? {
   return nil
 }
-public var DISPATCH_TARGET_QUEUE_DEFAULT: dispatch_queue_t {
+public var DISPATCH_TARGET_QUEUE_DEFAULT: dispatch_queue_t? {
   return nil
 }
 public var DISPATCH_QUEUE_PRIORITY_HIGH: dispatch_queue_priority_t {
