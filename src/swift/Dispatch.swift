@@ -80,7 +80,7 @@ public class DispatchSource : DispatchObject {
 
 // dispatch_retain/dispatch_release intentionally suppressed.
 
-public func dispatch_get_context(object:dispatch_object_t) -> UnsafeMutablePointer<Void> {
+public func dispatch_get_context(object:dispatch_object_t!) -> UnsafeMutablePointer<Void> {
   return CDispatch.dispatch_get_context(_to_dot(object.cobj))
 }
 
@@ -93,37 +93,107 @@ public func dispatch_set_finalizer_f(object:dispatch_object_t,
   CDispatch.dispatch_set_finalizer_f(_to_dot(object.cobj), finalizer)
 }
 
-public func dispatch_suspend(object:dispatch_object_t) -> Void {
+public func dispatch_suspend(object:dispatch_object_t!) -> Void {
   CDispatch.dispatch_suspend(_to_dot(object.cobj))
 }  
 
-public func dispatch_resume(object:dispatch_object_t) -> Void {
+public func dispatch_resume(object:dispatch_object_t!) -> Void {
   CDispatch.dispatch_resume(_to_dot(object.cobj))
 }  
 
+// queue.h
 
+public func dispatch_async(queue:dispatch_queue_t!, _ block:dispatch_block_t!) -> Void {
+  CDispatch.dispatch_async(queue.cobj, block)
+}
 
+public func dispatch_sync(queue:dispatch_queue_t!, _ block:dispatch_block_t!) -> Void {
+  CDispatch.dispatch_sync(queue.cobj, block)
+}
 
+public func dispatch_apply(iterations:Int, _ queue:dispatch_queue_t!,
+		                   _ block:dispatch_apply_block_t!) -> Void {
+  CDispatch.dispatch_apply(iterations, queue.cobj, block)						   
+}
 
+// skip deprecated function dispatch_get_current_queue
 
+// TODO: cache in a property
+public func dispatch_get_main_queue()-> dispatch_queue_t {
+  return DispatchQueue(CDispatch.dispatch_get_main_queue())
+}
 
+public func dispatch_get_global_queue(identifier:Int, _ flags:UInt) -> dispatch_queue_t {
+  return DispatchQueue(CDispatch.dispatch_get_global_queue(identifier, flags))
+}
 
-
-
-
-
-
-
-
-
-
-
-
+// skip dispatch_queue_attr_make_with_qos_class; no QoS on Linux
 
 public func dispatch_queue_create(label:UnsafePointer<Int8>,
 								  _ attr:dispatch_queue_attr_t) -> dispatch_queue_t! {
   return DispatchQueue(CDispatch.dispatch_queue_create(label, attr))
 }
+
+public func dispatch_queue_get_label(queue:dispatch_queue_t) -> UnsafePointer<Int8> {
+  return CDispatch.dispatch_queue_get_label(queue.cobj)
+}
+
+// skip dispatch_queue_get_qos_class; no QoS on Linux
+
+public func dispatch_set_target_queue(object:dispatch_object_t, queue:dispatch_queue_t) -> Void {
+  CDispatch.dispatch_set_target_queue(_to_dot(object.cobj), queue.cobj)
+}
+
+public func dispatch_main() -> Void {
+  CDispatch.dispatch_main()
+}
+
+public func dispatch_after(when:dispatch_time_t, _ queue:dispatch_queue_t!,
+	                       _ block:dispatch_block_t!) -> Void {
+  CDispatch.dispatch_after(when, queue.cobj, block)
+}
+
+public func dispatch_barrier_async(queue:dispatch_queue_t!, _ block:dispatch_block_t!) -> Void {
+  CDispatch.dispatch_barrier_async(queue.cobj, block)
+}
+
+public func dispatch_barrier_sync(queue:dispatch_queue_t!, _ block:dispatch_block_t!) -> Void {
+  CDispatch.dispatch_barrier_sync(queue.cobj, block)
+}
+
+public func dispatch_queue_set_specific(queue:dispatch_queue_t!,
+                                        _ key:UnsafeMutablePointer<Void>,
+	                                    _ context:UnsafeMutablePointer<Void>,
+										_ destructor:dispatch_function_t) -> Void {
+  CDispatch.dispatch_queue_set_specific(queue.cobj, key, context, destructor)
+}
+
+public func dispatch_queue_get_specific(queue:dispatch_queue_t!,
+                                        _ key:UnsafeMutablePointer<Void>) -> UnsafeMutablePointer<Void> {
+  return CDispatch.dispatch_queue_get_specific(queue.cobj, key)
+}
+
+public func dispatch_get_specific(key:UnsafeMutablePointer<Void>) -> UnsafeMutablePointer<Void> {
+  return CDispatch.dispatch_get_specific(key)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 public func dispatch_semaphore_create(value:Int) -> dispatch_semaphore_t! {
@@ -146,6 +216,7 @@ internal func _to_dot(x:COpaquePointer) -> CDispatch.dispatch_object_t
 /// C blocks and Swift closures, which interferes with Grand Central Dispatch
 /// APIs that depend on the referential identity of a block.
 public typealias dispatch_block_t = @convention(block) () -> Void
+public typealias dispatch_apply_block_t = @convention(block) (Int) -> Void
 
 //===----------------------------------------------------------------------===//
 // Macros
