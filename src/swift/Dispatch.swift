@@ -75,6 +75,8 @@ public class DispatchSource : DispatchObject {
 // base.h -- fine
 
 // time.h -- fine
+public let DISPATCH_TIME_FOREVER = CDispatch.DISPATCH_TIME_FOREVER
+public let DISPATCH_TIME_NOW = CDispatch.DISPATCH_TIME_NOW
 
 // object.h
 
@@ -177,6 +179,38 @@ public func dispatch_get_specific(key:UnsafeMutablePointer<Void>) -> UnsafeMutab
   return CDispatch.dispatch_get_specific(key)
 }
 
+
+// TODO: block.h
+
+// TODO: source.h
+
+// group.h
+
+public func dispatch_group_create() -> dispatch_group_t! {
+  return DispatchGroup(CDispatch.dispatch_group_create())
+}
+
+public func dispatch_group_async(group:dispatch_group_t!, _ queue:dispatch_queue_t!,
+	                             _ block:dispatch_block_t!) -> Void {
+  CDispatch.dispatch_group_async(group.cobj, queue.cobj, block)
+}
+
+public func dispatch_group_wait(group:dispatch_group_t, _ timeout:dispatch_time_t) -> Int {
+  return CDispatch.dispatch_group_wait(group.cobj, timeout)
+}
+
+public func dispatch_group_notify(group:dispatch_group_t!, _ queue:dispatch_queue_t!,
+	                              _ block:dispatch_block_t!) -> Void {
+  CDispatch.dispatch_group_notify(group.cobj, queue.cobj, block)
+}
+
+public func dispatch_group_enter(group:dispatch_group_t!) -> Void {
+  CDispatch.dispatch_group_enter(group.cobj)
+}
+
+public func dispatch_group_leave(group:dispatch_group_t!) -> Void {
+  CDispatch.dispatch_group_leave(group.cobj)
+}
 
 
 
@@ -351,6 +385,3 @@ internal func _swift_dispatch_source_type_vnode() -> dispatch_source_type_t
 @_silgen_name("_swift_dispatch_source_type_WRITE")
 internal func _swift_dispatch_source_type_write() -> dispatch_source_type_t
 
-// dispatch/time.h
-// DISPATCH_TIME_NOW: ok
-// DISPATCH_TIME_FOREVER: ok
