@@ -11,6 +11,132 @@
 //===----------------------------------------------------------------------===//
 
 @_exported import Dispatch
+import CDispatch
+
+//===----------------------------------------------------------------------===//
+// Linux-specific overlay layer to compensate for lack of Objective-C
+//
+//   CDispatch classes and APIs are wrapped in Swift objects/functions
+//   to achieve API compatibility with Darwin platforms and integration with
+//   Swift retain/release operations.
+//
+//   Injecting an extra level of wrapping is sub-optimal, but pushing the Swift
+//   object model down into the C libdispatch implementation is too invasive
+//   a change to undertake at this stage of development.
+//===----------------------------------------------------------------------===//
+
+
+// Define Swift-level class hierarchy for subset of dispatch types
+// returned from API methods with DISPATCH_RETURNS_RETAINED
+
+public typealias dispatch_object_t = DispatchObject
+public class DispatchObject {
+  let cobj:COpaquePointer;
+
+  deinit {
+      CDispatch.dispatch_release(_to_dot(cobj))
+  }
+
+  init(_ cobj:COpaquePointer) {
+    self.cobj = cobj;
+  }
+}
+
+public typealias dispatch_data_t = DispatchData
+public class DispatchData : DispatchObject {
+}
+
+
+public typealias dispatch_group_t = DispatchGroup
+public class DispatchGroup : DispatchObject {
+}
+
+
+public typealias dispatch_io_t = DispatchIO
+public class DispatchIO : DispatchObject {
+}
+
+
+public typealias dispatch_queue_t = DispatchQueue
+public class DispatchQueue : DispatchObject {
+}
+
+
+public typealias dispatch_semaphore_t = DispatchSemaphore
+public class DispatchSemaphore : DispatchObject {
+}
+
+
+public typealias dispatch_source_t = DispatchSource
+public class DispatchSource : DispatchObject {
+}
+
+
+// base.h -- fine
+
+// time.h -- fine
+
+// object.h
+
+// dispatch_retain/dispatch_release intentionally suppressed.
+
+public func dispatch_get_context(object:dispatch_object_t) -> UnsafeMutablePointer<Void> {
+  return CDispatch.dispatch_get_context(_to_dot(object.cobj))
+}
+
+public func dispatch_set_context(object:dispatch_object_t, _ context:UnsafeMutablePointer<Void>) -> Void {
+  CDispatch.dispatch_set_context(_to_dot(object.cobj), context)
+}
+
+public func dispatch_set_finalizer_f(object:dispatch_object_t, 
+		                             _ finalizer:dispatch_function_t) -> Void {
+  CDispatch.dispatch_set_finalizer_f(_to_dot(object.cobj), finalizer)
+}
+
+public func dispatch_suspend(object:dispatch_object_t) -> Void {
+  CDispatch.dispatch_suspend(_to_dot(object.cobj))
+}  
+
+public func dispatch_resume(object:dispatch_object_t) -> Void {
+  CDispatch.dispatch_resume(_to_dot(object.cobj))
+}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public func dispatch_queue_create(label:UnsafePointer<Int8>,
+								  _ attr:dispatch_queue_attr_t) -> dispatch_queue_t! {
+  return DispatchQueue(CDispatch.dispatch_queue_create(label, attr))
+}
+
+
+public func dispatch_semaphore_create(value:Int) -> dispatch_semaphore_t! {
+  return DispatchSemaphore(CDispatch.dispatch_semaphore_create(value))
+}
+
+
+
+
+@_silgen_name("_swift_dispatch_object_type_punner")
+internal func _to_dot(x:COpaquePointer) -> CDispatch.dispatch_object_t
+
+
 
 /// The type of blocks submitted to dispatch queues, which take no arguments
 /// and have no return value.
@@ -44,10 +170,10 @@ public var DISPATCH_IO_STRICT_INTERVAL: dispatch_io_interval_flags_t {
 public var DISPATCH_QUEUE_SERIAL: dispatch_queue_attr_t {
   return nil
 }
-public var DISPATCH_CURRENT_QUEUE_LABEL: dispatch_queue_t {
+public var DISPATCH_CURRENT_QUEUE_LABEL: dispatch_queue_t? {
   return nil
 }
-public var DISPATCH_TARGET_QUEUE_DEFAULT: dispatch_queue_t {
+public var DISPATCH_TARGET_QUEUE_DEFAULT: dispatch_queue_t? {
   return nil
 }
 public var DISPATCH_QUEUE_PRIORITY_HIGH: dispatch_queue_priority_t {
@@ -62,15 +188,6 @@ public var DISPATCH_QUEUE_PRIORITY_LOW: dispatch_queue_priority_t {
 public var DISPATCH_QUEUE_PRIORITY_BACKGROUND: dispatch_queue_priority_t {
   return -32768
 }
-
-/*
-FIXME: LINUX_PORT:  qos_class_t not being imported
-@warn_unused_result
-public func dispatch_get_global_queue(identifier: qos_class_t,
-                                      _ flags: UInt) -> dispatch_queue_t {
-  return dispatch_get_global_queue(Int(identifier.rawValue), flags)
-}
-*/
 
 public var DISPATCH_QUEUE_CONCURRENT: dispatch_queue_attr_t {
   return _swift_dispatch_queue_concurrent()

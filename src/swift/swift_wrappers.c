@@ -30,6 +30,12 @@ _swift_dispatch_data_empty(void) {
   return dispatch_data_empty;
 }
 
+DISPATCH_EXPORT
+dispatch_object_t
+_swift_dispatch_object_type_punner(dispatch_object_t dou) {
+	return dou;
+}
+
 #define SOURCE(t)                               \
   DISPATCH_EXPORT                               \
   dispatch_source_type_t                        \
