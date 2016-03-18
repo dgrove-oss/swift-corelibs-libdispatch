@@ -363,7 +363,7 @@ public func dispatch_semaphore_signal(dsema:dispatch_semaphore_t) -> Int {
 // skip dispatch_once for now (does a long* predicate really fit that well for Swift?)
 
 //////////
-// TODO: data.h
+// data.h
 //////////
 
 public var dispatch_data_empty: dispatch_data_t {
@@ -395,7 +395,7 @@ public func dispatch_data_create_subrange(data:dispatch_data_t,
 }
 
 // TODO: defer dispatch_data_applier_t/dispatch_data_apply
-//       a little unclear how to unwrap layers in the block.
+//       a little unclear how best to unwrap/wrap within the block.
 
 public func dispatch_data_copy_region(data:dispatch_data_t, _ location:size_t,
                                       _ offset_ptr:UnsafeMutablePointer<size_t>) -> dispatch_data_t {
@@ -403,22 +403,91 @@ public func dispatch_data_copy_region(data:dispatch_data_t, _ location:size_t,
 }
 
 //////////
-// TODO: io.h
+// io.h
 //////////
 
+public typealias dispatch_fd_t = CDispatch.dispatch_fd_t
 
+// TODO: defer dispatch_read (block with dispatch_data_t arg)
 
+// TODO: defer dispatch_write (block with dispatch_data_t arg)
 
+public var DISPATCH_IO_STREAM: dispatch_io_type_t {
+  return 0
+}
+public var DISPATCH_IO_RANDOM: dispatch_io_type_t {
+  return 1
+}
 
+public typealias dispatch_io_type_t = CDispatch.dispatch_io_type_t
 
+public typealias dispatch_io_handler_block_t = @convention(block) (Int32) -> Void
 
+public func dispatch_io_create(type:dispatch_io_type_t,
+                               _ fd:dispatch_fd_t,
+                               _ queue:dispatch_queue_t,
+	                           _ cleanup_handler:dispatch_io_handler_block_t) -> dispatch_io_t {
+  return DispatchIO(CDispatch.dispatch_io_create(type, fd, queue.cobj, cleanup_handler))
+}	
 
+public func dispatch_io_create_with_path(type:dispatch_io_type_t,
+	                                     _ path:UnsafePointer<Int8>,
+										 _ oflag:Int32, _ mode:mode_t,
+                                         _ queue:dispatch_queue_t,
+	                                     _ cleanup_handler:dispatch_io_handler_block_t) -> dispatch_io_t {
+  return DispatchIO(CDispatch.dispatch_io_create_with_path(type, path, oflag, mode, queue.cobj, cleanup_handler))
+}
 
+public func dispatch_io_create_with_io(type:dispatch_io_type_t,
+                                       _ io:dispatch_io_t,
+                                       _ queue:dispatch_queue_t,
+                                       _ cleanup_handler:dispatch_io_handler_block_t) -> dispatch_io_t {
+  return DispatchIO(CDispatch.dispatch_io_create_with_io(type, io.cobj, queue.cobj, cleanup_handler))
+}
 
+// TODO: dispatch_io_handler_t (dispatch_data_t in block...)
 
+// TODO: dispatch_io_read
 
+// TODO: dispatch_io_write
 
+public var DISPATCH_IO_STOP: dispatch_io_close_flags_t {
+  return 1
+}
 
+public typealias dispatch_io_close_flags_t = CDispatch.dispatch_io_close_flags_t
+
+public func dispatch_io_close(channel:dispatch_io_t, _ flags:dispatch_io_close_flags_t) -> Void {
+  CDispatch.dispatch_io_close(channel.cobj, flags)
+}
+
+public func dispatch_io_barrier(channel:dispatch_io_t, _ barrier:dispatch_block_t) -> Void {
+  CDispatch.dispatch_io_barrier(channel.cobj, barrier)
+}
+
+public func dispatch_io_get_descriptor(channel:dispatch_io_t) -> dispatch_fd_t {
+  return CDispatch.dispatch_io_get_descriptor(channel.cobj)
+}
+
+public func dispatch_io_set_high_water(channel:dispatch_io_t, _ high_water:size_t) -> Void {
+  CDispatch.dispatch_io_set_high_water(channel.cobj, high_water)
+}
+
+public func dispatch_io_set_low_water(channel:dispatch_io_t, _ low_water:size_t) -> Void {
+  CDispatch.dispatch_io_set_low_water(channel.cobj, low_water)
+}
+
+public var DISPATCH_IO_STRICT_INTERVAL: dispatch_io_interval_flags_t {
+  return 1
+}
+
+public typealias dispatch_io_interval_flags_t = CDispatch.dispatch_io_interval_flags_t
+
+public func dispatch_io_set_interval(channel:dispatch_io_t,
+                                     _ interval:UInt64,
+                                     _ flags:dispatch_io_interval_flags_t) -> Void {
+  CDispatch.dispatch_io_set_interval(channel.cobj, interval, flags)
+}
 
 
 //===----------------------------------------------------------------------===//
@@ -474,21 +543,7 @@ internal func _swift_dispatch_source_type_write() -> dispatch_source_type_t
 //===----------------------------------------------------------------------===//
 
 // dispatch/io.h
-public var DISPATCH_IO_STREAM: dispatch_io_type_t {
-  return 0
-}
-public var DISPATCH_IO_RANDOM: dispatch_io_type_t {
-  return 1
-}
 
-public var DISPATCH_IO_STOP: dispatch_io_close_flags_t {
-  return 1
-}
-public var DISPATCH_IO_STRICT_INTERVAL: dispatch_io_interval_flags_t {
-  return 1
-}
-
-// dispatch/data.h
 
 // dispatch/source.h
 // FIXME: DISPATCH_SOURCE_TYPE_*
