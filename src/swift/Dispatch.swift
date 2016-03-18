@@ -150,9 +150,8 @@ public func dispatch_apply(iterations:Int, _ queue:dispatch_queue_t,
 
 // skip deprecated function dispatch_get_current_queue
 
-// TODO: cache wrapped object in a property
 public func dispatch_get_main_queue()-> dispatch_queue_t {
-  return DispatchQueue(CDispatch.dispatch_get_main_queue())
+  return mainQueue;
 }
 
 public typealias dispatch_queue_priority_t = CDispatch.dispatch_queue_priority_t
@@ -458,7 +457,9 @@ public func dispatch_semaphore_signal(dsema:dispatch_semaphore_t) -> Int {
 // once.h
 //////////
 
-// TODO: skip dispatch_once (does a long* predicate really make sense for Swift?)
+public func dispatch_once(predicate:UnsafeMutablePointer<Int>, _ block:dispatch_block_t) -> Void {
+  CDispatch.dispatch_once(predicate, block)
+}
 
 //////////
 // data.h
@@ -591,6 +592,8 @@ public func dispatch_io_set_interval(channel:dispatch_io_t,
 //===----------------------------------------------------------------------===//
 // Internal macros and helper functions.  Not part of the exported API
 //===----------------------------------------------------------------------===//
+
+let mainQueue:dispatch_queue_t = DispatchQueue(CDispatch.dispatch_get_main_queue())
 
 @_silgen_name("_swift_dispatch_object_type_punner")
 internal func _to_dot(x:COpaquePointer) -> CDispatch.dispatch_object_t
