@@ -244,7 +244,7 @@ public func dispatch_get_specific(key:UnsafeMutablePointer<Void>) -> UnsafeMutab
 
 
 //////////
-// TODO: block.h
+// block.h
 //////////
 
 /// The type of blocks submitted to dispatch queues, which take no arguments
@@ -277,7 +277,8 @@ public var DISPATCH_BLOCK_ENFORCE_QOS_CLASS:dispatch_block_flags_t {
   return 0x20
 }  
 
-public func dispatch_block_create(flags:dispatch_block_flags_t, _ block:dispatch_block_t) -> dispatch_block_t {
+public func dispatch_block_create(flags:dispatch_block_flags_t,
+                                  _ block:dispatch_block_t) -> dispatch_block_t? {
   return CDispatch.dispatch_block_create(flags, block)
 }  
 
@@ -339,16 +340,67 @@ public func dispatch_group_leave(group:dispatch_group_t) -> Void {
 }
 
 //////////
-// TODO: semaphore.h
+// semaphore.h
 //////////
 
+public func dispatch_semaphore_create(value:Int) -> dispatch_semaphore_t? {
+  let csem = CDispatch.dispatch_semaphore_create(value)
+  return csem != nil ? DispatchSemaphore(csem) : nil
+}
+
+public func dispatch_semaphore_wait(dsema:dispatch_semaphore_t, _ timeout:dispatch_time_t) -> Int {
+  return CDispatch.dispatch_semaphore_wait(dsema.cobj, timeout)
+}
+
+public func dispatch_semaphore_signal(dsema:dispatch_semaphore_t) -> Int {
+  return CDispatch.dispatch_semaphore_signal(dsema.cobj)
+}
+
 //////////
-// TODO: once.h
+// once.h
 //////////
+
+// skip dispatch_once for now (does a long* predicate really fit that well for Swift?)
 
 //////////
 // TODO: data.h
 //////////
+
+public var dispatch_data_empty: dispatch_data_t {
+  return _swift_dispatch_data_empty()
+}
+
+public func dispatch_data_create(buffer:UnsafePointer<Void>, _ size:size_t,
+                                 _ queue:dispatch_queue_t,	_ destructor:dispatch_block_t?) -> dispatch_data_t {
+  return DispatchData(CDispatch.dispatch_data_create(buffer, size, queue.cobj, destructor))
+}
+
+public func dispatch_data_get_size(data:dispatch_data_t)-> size_t {
+  return CDispatch.dispatch_data_get_size(data.cobj)
+}
+
+public func dispatch_data_create_map(data:dispatch_data_t,
+                                     _ buffer_ptr:UnsafeMutablePointer<UnsafePointer<Void>>,
+	                                 _ size_ptr:UnsafeMutablePointer<size_t>) -> dispatch_data_t {
+  return DispatchData(CDispatch.dispatch_data_create_map(data.cobj, buffer_ptr, size_ptr))
+}
+
+public func dispatch_data_create_concat(data1:dispatch_data_t, _ data2:dispatch_data_t)->dispatch_data_t {
+  return DispatchData(CDispatch.dispatch_data_create_concat(data1.cobj, data2.cobj))
+}
+
+public func dispatch_data_create_subrange(data:dispatch_data_t,
+                                          _ offset:size_t, _ length:size_t) -> dispatch_data_t {
+  return DispatchData(CDispatch.dispatch_data_create_subrange(data.cobj, offset, length))
+}
+
+// TODO: defer dispatch_data_applier_t/dispatch_data_apply
+//       a little unclear how to unwrap layers in the block.
+
+public func dispatch_data_copy_region(data:dispatch_data_t, _ location:size_t,
+                                      _ offset_ptr:UnsafeMutablePointer<size_t>) -> dispatch_data_t {
+  return DispatchData(CDispatch.dispatch_data_copy_region(data.cobj, location, offset_ptr))
+}
 
 //////////
 // TODO: io.h
@@ -367,10 +419,6 @@ public func dispatch_group_leave(group:dispatch_group_t) -> Void {
 
 
 
-
-public func dispatch_semaphore_create(value:Int) -> dispatch_semaphore_t {
-  return DispatchSemaphore(CDispatch.dispatch_semaphore_create(value))
-}
 
 
 //===----------------------------------------------------------------------===//
@@ -441,9 +489,6 @@ public var DISPATCH_IO_STRICT_INTERVAL: dispatch_io_interval_flags_t {
 }
 
 // dispatch/data.h
-public var dispatch_data_empty: dispatch_data_t {
-  return _swift_dispatch_data_empty()
-}
 
 // dispatch/source.h
 // FIXME: DISPATCH_SOURCE_TYPE_*
