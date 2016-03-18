@@ -71,18 +71,43 @@ public typealias dispatch_source_t = DispatchSource
 public class DispatchSource : DispatchObject {
 }
 
+//////////
+// base.h
+//////////
 
-// base.h -- fine
+public typealias dispatch_function_t = CDispatch.dispatch_function_t
 
-// time.h -- fine
-public let DISPATCH_TIME_FOREVER = CDispatch.DISPATCH_TIME_FOREVER
-public let DISPATCH_TIME_NOW = CDispatch.DISPATCH_TIME_NOW
+//////////
+// time.h 
+//////////
 
+public typealias dispatch_time_t = UInt64
+
+
+public var DISPATCH_TIME_FOREVER:dispatch_time_t {
+  return CDispatch.DISPATCH_TIME_FOREVER
+}
+
+public var DISPATCH_TIME_NOW:dispatch_time_t {
+  return CDispatch.DISPATCH_TIME_NOW
+}
+
+public func dispatch_time(when:dispatch_time_t, _ delta:Int64) -> dispatch_time_t {
+  return CDispatch.dispatch_time(when, delta)
+}
+
+public func dispatch_walltime(when:UnsafePointer<timespec>, _ delta:Int64) -> dispatch_time_t {
+  return CDispatch.dispatch_walltime(when, delta)
+}
+
+
+//////////
 // object.h
+//////////
 
 // dispatch_retain/dispatch_release intentionally suppressed.
 
-public func dispatch_get_context(object:dispatch_object_t!) -> UnsafeMutablePointer<Void> {
+public func dispatch_get_context(object:dispatch_object_t) -> UnsafeMutablePointer<Void> {
   return CDispatch.dispatch_get_context(_to_dot(object.cobj))
 }
 
@@ -95,35 +120,56 @@ public func dispatch_set_finalizer_f(object:dispatch_object_t,
   CDispatch.dispatch_set_finalizer_f(_to_dot(object.cobj), finalizer)
 }
 
-public func dispatch_suspend(object:dispatch_object_t!) -> Void {
+public func dispatch_suspend(object:dispatch_object_t) -> Void {
   CDispatch.dispatch_suspend(_to_dot(object.cobj))
 }  
 
-public func dispatch_resume(object:dispatch_object_t!) -> Void {
+public func dispatch_resume(object:dispatch_object_t) -> Void {
   CDispatch.dispatch_resume(_to_dot(object.cobj))
 }  
 
+//////////
 // queue.h
+//////////
 
-public func dispatch_async(queue:dispatch_queue_t!, _ block:dispatch_block_t!) -> Void {
+public func dispatch_async(queue:dispatch_queue_t, _ block:dispatch_block_t) -> Void {
   CDispatch.dispatch_async(queue.cobj, block)
 }
 
-public func dispatch_sync(queue:dispatch_queue_t!, _ block:dispatch_block_t!) -> Void {
+public func dispatch_sync(queue:dispatch_queue_t, _ block:dispatch_block_t) -> Void {
   CDispatch.dispatch_sync(queue.cobj, block)
 }
 
-public func dispatch_apply(iterations:Int, _ queue:dispatch_queue_t!,
-		                   _ block:dispatch_apply_block_t!) -> Void {
+public typealias dispatch_apply_block_t = @convention(block) (size_t) -> Void
+
+public func dispatch_apply(iterations:Int, _ queue:dispatch_queue_t,
+		                   _ block:dispatch_apply_block_t) -> Void {
   CDispatch.dispatch_apply(iterations, queue.cobj, block)						   
 }
 
 // skip deprecated function dispatch_get_current_queue
 
-// TODO: cache in a property
+// TODO: cache wrapped object in a property
 public func dispatch_get_main_queue()-> dispatch_queue_t {
   return DispatchQueue(CDispatch.dispatch_get_main_queue())
 }
+
+public typealias dispatch_queue_priority_t = CDispatch.dispatch_queue_priority_t
+
+public var DISPATCH_QUEUE_PRIORITY_HIGH: dispatch_queue_priority_t {
+  return 2
+}
+public var DISPATCH_QUEUE_PRIORITY_DEFAULT: dispatch_queue_priority_t {
+  return 0
+}
+public var DISPATCH_QUEUE_PRIORITY_LOW: dispatch_queue_priority_t {
+  return -2
+}
+public var DISPATCH_QUEUE_PRIORITY_BACKGROUND: dispatch_queue_priority_t {
+  return -32768
+}
+
+
 
 public func dispatch_get_global_queue(identifier:Int, _ flags:UInt) -> dispatch_queue_t {
   return DispatchQueue(CDispatch.dispatch_get_global_queue(identifier, flags))
@@ -131,46 +177,63 @@ public func dispatch_get_global_queue(identifier:Int, _ flags:UInt) -> dispatch_
 
 // skip dispatch_queue_attr_make_with_qos_class; no QoS on Linux
 
+public typealias dispatch_queue_attr_t = CDispatch.dispatch_queue_attr_t
+
+public var DISPATCH_QUEUE_SERIAL: dispatch_queue_attr_t {
+  return nil
+}
+public var DISPATCH_QUEUE_CONCURRENT: dispatch_queue_attr_t {
+  return _swift_dispatch_queue_concurrent()
+}
+
 public func dispatch_queue_create(label:UnsafePointer<Int8>,
-								  _ attr:dispatch_queue_attr_t) -> dispatch_queue_t! {
+								  _ attr:dispatch_queue_attr_t) -> dispatch_queue_t {
   return DispatchQueue(CDispatch.dispatch_queue_create(label, attr))
 }
 
-public func dispatch_queue_get_label(queue:dispatch_queue_t) -> UnsafePointer<Int8> {
-  return CDispatch.dispatch_queue_get_label(queue.cobj)
+public var DISPATCH_CURRENT_QUEUE_LABEL: dispatch_queue_t? {
+  return nil
+}
+
+public func dispatch_queue_get_label(queue:dispatch_queue_t?) -> UnsafePointer<Int8> {
+  return CDispatch.dispatch_queue_get_label(queue != nil ? queue!.cobj : nil)
 }
 
 // skip dispatch_queue_get_qos_class; no QoS on Linux
 
-public func dispatch_set_target_queue(object:dispatch_object_t, queue:dispatch_queue_t) -> Void {
-  CDispatch.dispatch_set_target_queue(_to_dot(object.cobj), queue.cobj)
+public var DISPATCH_TARGET_QUEUE_DEFAULT: dispatch_queue_t? {
+  return nil
+}
+
+public func dispatch_set_target_queue(object:dispatch_object_t, queue:dispatch_queue_t?) -> Void {
+  CDispatch.dispatch_set_target_queue(_to_dot(object.cobj), queue != nil ? queue!.cobj : nil)
 }
 
 public func dispatch_main() -> Void {
   CDispatch.dispatch_main()
 }
 
-public func dispatch_after(when:dispatch_time_t, _ queue:dispatch_queue_t!,
-	                       _ block:dispatch_block_t!) -> Void {
+public func dispatch_after(when:dispatch_time_t, _ queue:dispatch_queue_t,
+	                       _ block:dispatch_block_t) -> Void {
   CDispatch.dispatch_after(when, queue.cobj, block)
 }
 
-public func dispatch_barrier_async(queue:dispatch_queue_t!, _ block:dispatch_block_t!) -> Void {
+public func dispatch_barrier_async(queue:dispatch_queue_t, _ block:dispatch_block_t) -> Void {
   CDispatch.dispatch_barrier_async(queue.cobj, block)
 }
 
-public func dispatch_barrier_sync(queue:dispatch_queue_t!, _ block:dispatch_block_t!) -> Void {
+public func dispatch_barrier_sync(queue:dispatch_queue_t, _ block:dispatch_block_t) -> Void {
   CDispatch.dispatch_barrier_sync(queue.cobj, block)
 }
 
-public func dispatch_queue_set_specific(queue:dispatch_queue_t!,
+public func dispatch_queue_set_specific(queue:dispatch_queue_t,
                                         _ key:UnsafeMutablePointer<Void>,
 	                                    _ context:UnsafeMutablePointer<Void>,
 										_ destructor:dispatch_function_t) -> Void {
   CDispatch.dispatch_queue_set_specific(queue.cobj, key, context, destructor)
 }
 
-public func dispatch_queue_get_specific(queue:dispatch_queue_t!,
+public func dispatch_queue_get_specific(queue:dispatch_queue_t,
                                         _ key:UnsafeMutablePointer<Void>) -> UnsafeMutablePointer<Void> {
   return CDispatch.dispatch_queue_get_specific(queue.cobj, key)
 }
@@ -180,67 +243,9 @@ public func dispatch_get_specific(key:UnsafeMutablePointer<Void>) -> UnsafeMutab
 }
 
 
+//////////
 // TODO: block.h
-
-// TODO: source.h
-
-// group.h
-
-public func dispatch_group_create() -> dispatch_group_t! {
-  return DispatchGroup(CDispatch.dispatch_group_create())
-}
-
-public func dispatch_group_async(group:dispatch_group_t!, _ queue:dispatch_queue_t!,
-	                             _ block:dispatch_block_t!) -> Void {
-  CDispatch.dispatch_group_async(group.cobj, queue.cobj, block)
-}
-
-public func dispatch_group_wait(group:dispatch_group_t, _ timeout:dispatch_time_t) -> Int {
-  return CDispatch.dispatch_group_wait(group.cobj, timeout)
-}
-
-public func dispatch_group_notify(group:dispatch_group_t!, _ queue:dispatch_queue_t!,
-	                              _ block:dispatch_block_t!) -> Void {
-  CDispatch.dispatch_group_notify(group.cobj, queue.cobj, block)
-}
-
-public func dispatch_group_enter(group:dispatch_group_t!) -> Void {
-  CDispatch.dispatch_group_enter(group.cobj)
-}
-
-public func dispatch_group_leave(group:dispatch_group_t!) -> Void {
-  CDispatch.dispatch_group_leave(group.cobj)
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-public func dispatch_semaphore_create(value:Int) -> dispatch_semaphore_t! {
-  return DispatchSemaphore(CDispatch.dispatch_semaphore_create(value))
-}
-
-
-
-
-@_silgen_name("_swift_dispatch_object_type_punner")
-internal func _to_dot(x:COpaquePointer) -> CDispatch.dispatch_object_t
-
-
+//////////
 
 /// The type of blocks submitted to dispatch queues, which take no arguments
 /// and have no return value.
@@ -250,7 +255,170 @@ internal func _to_dot(x:COpaquePointer) -> CDispatch.dispatch_object_t
 /// C blocks and Swift closures, which interferes with Grand Central Dispatch
 /// APIs that depend on the referential identity of a block.
 public typealias dispatch_block_t = @convention(block) () -> Void
-public typealias dispatch_apply_block_t = @convention(block) (Int) -> Void
+
+public typealias dispatch_block_flags_t = UInt
+
+public var DISPATCH_BLOCK_BARRIER:dispatch_block_flags_t {
+  return 0x1
+}
+public var DISPATCH_BLOCK_DETACHED:dispatch_block_flags_t { 
+  return 0x2
+}
+public var DISPATCH_BLOCK_ASSIGN_CURRENT:dispatch_block_flags_t {
+  return 0x4
+}
+public var DISPATCH_BLOCK_NO_QOS_CLASS:dispatch_block_flags_t {
+  return 0x8
+}
+public var DISPATCH_BLOCK_INHERIT_QOS_CLASS:dispatch_block_flags_t {
+  return 0x10
+}  
+public var DISPATCH_BLOCK_ENFORCE_QOS_CLASS:dispatch_block_flags_t {
+  return 0x20
+}  
+
+public func dispatch_block_create(flags:dispatch_block_flags_t, _ block:dispatch_block_t) -> dispatch_block_t {
+  return CDispatch.dispatch_block_create(flags, block)
+}  
+
+// skip dispatch_block_create_with_qos_class; no QoS on Linux
+		
+public func dispatch_block_perform(flags:dispatch_block_flags_t, _ block:dispatch_block_t) -> Void {
+  CDispatch.dispatch_block_perform(flags, block)
+}
+
+public func dispatch_block_wait(block:dispatch_block_t, _ timeout:dispatch_time_t) -> Int {
+  return CDispatch.dispatch_block_wait(block, timeout)
+}
+
+public func dispatch_block_notify(block:dispatch_block_t, _ queue:dispatch_queue_t,
+		                          _ notification_block:dispatch_block_t) -> Void {
+  return CDispatch.dispatch_block_notify(block, queue.cobj, notification_block)		
+}
+
+public func dispatch_block_cancel(block:dispatch_block_t) -> Void {
+  CDispatch.dispatch_block_cancel(block)
+}
+
+public func dispatch_block_testcancel(block:dispatch_block_t) -> Int {
+  return CDispatch.dispatch_block_testcancel(block)
+}
+
+//////////
+// TODO: source.h
+//////////
+
+//////////
+// group.h
+//////////
+
+public func dispatch_group_create() -> dispatch_group_t {
+  return DispatchGroup(CDispatch.dispatch_group_create())
+}
+
+public func dispatch_group_async(group:dispatch_group_t, _ queue:dispatch_queue_t,
+	                             _ block:dispatch_block_t) -> Void {
+  CDispatch.dispatch_group_async(group.cobj, queue.cobj, block)
+}
+
+public func dispatch_group_wait(group:dispatch_group_t, _ timeout:dispatch_time_t) -> Int {
+  return CDispatch.dispatch_group_wait(group.cobj, timeout)
+}
+
+public func dispatch_group_notify(group:dispatch_group_t, _ queue:dispatch_queue_t,
+	                              _ block:dispatch_block_t) -> Void {
+  CDispatch.dispatch_group_notify(group.cobj, queue.cobj, block)
+}
+
+public func dispatch_group_enter(group:dispatch_group_t) -> Void {
+  CDispatch.dispatch_group_enter(group.cobj)
+}
+
+public func dispatch_group_leave(group:dispatch_group_t) -> Void {
+  CDispatch.dispatch_group_leave(group.cobj)
+}
+
+//////////
+// TODO: semaphore.h
+//////////
+
+//////////
+// TODO: once.h
+//////////
+
+//////////
+// TODO: data.h
+//////////
+
+//////////
+// TODO: io.h
+//////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public func dispatch_semaphore_create(value:Int) -> dispatch_semaphore_t {
+  return DispatchSemaphore(CDispatch.dispatch_semaphore_create(value))
+}
+
+
+//===----------------------------------------------------------------------===//
+// Internal macros and helper functions.  Not part of the exported API
+//===----------------------------------------------------------------------===//
+
+@_silgen_name("_swift_dispatch_object_type_punner")
+internal func _to_dot(x:COpaquePointer) -> CDispatch.dispatch_object_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_queue_concurrent")
+internal func _swift_dispatch_queue_concurrent() -> dispatch_queue_attr_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_data_empty")
+internal func _swift_dispatch_data_empty() -> dispatch_data_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_source_type_DATA_ADD")
+internal func _swift_dispatch_source_type_data_add() -> dispatch_source_type_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_source_type_DATA_OR")
+internal func _swift_dispatch_source_type_data_or() -> dispatch_source_type_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_source_type_PROC")
+internal func _swift_dispatch_source_type_proc() -> dispatch_source_type_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_source_type_READ")
+internal func _swift_dispatch_source_type_read() -> dispatch_source_type_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_source_type_SIGNAL")
+internal func _swift_dispatch_source_type_signal() -> dispatch_source_type_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_source_type_TIMER")
+internal func _swift_dispatch_source_type_timer() -> dispatch_source_type_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_source_type_VNODE")
+internal func _swift_dispatch_source_type_vnode() -> dispatch_source_type_t
+
+@warn_unused_result
+@_silgen_name("_swift_dispatch_source_type_WRITE")
+internal func _swift_dispatch_source_type_write() -> dispatch_source_type_t
 
 //===----------------------------------------------------------------------===//
 // Macros
@@ -272,44 +440,10 @@ public var DISPATCH_IO_STRICT_INTERVAL: dispatch_io_interval_flags_t {
   return 1
 }
 
-public var DISPATCH_QUEUE_SERIAL: dispatch_queue_attr_t {
-  return nil
-}
-public var DISPATCH_CURRENT_QUEUE_LABEL: dispatch_queue_t? {
-  return nil
-}
-public var DISPATCH_TARGET_QUEUE_DEFAULT: dispatch_queue_t? {
-  return nil
-}
-public var DISPATCH_QUEUE_PRIORITY_HIGH: dispatch_queue_priority_t {
-  return 2
-}
-public var DISPATCH_QUEUE_PRIORITY_DEFAULT: dispatch_queue_priority_t {
-  return 0
-}
-public var DISPATCH_QUEUE_PRIORITY_LOW: dispatch_queue_priority_t {
-  return -2
-}
-public var DISPATCH_QUEUE_PRIORITY_BACKGROUND: dispatch_queue_priority_t {
-  return -32768
-}
-
-public var DISPATCH_QUEUE_CONCURRENT: dispatch_queue_attr_t {
-  return _swift_dispatch_queue_concurrent()
-}
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_queue_concurrent")
-internal func _swift_dispatch_queue_concurrent() -> dispatch_queue_attr_t
-
 // dispatch/data.h
 public var dispatch_data_empty: dispatch_data_t {
   return _swift_dispatch_data_empty()
 }
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_data_empty")
-internal func _swift_dispatch_data_empty() -> dispatch_data_t
 
 // dispatch/source.h
 // FIXME: DISPATCH_SOURCE_TYPE_*
@@ -352,36 +486,3 @@ public var DISPATCH_SOURCE_TYPE_VNODE: dispatch_source_type_t {
 public var DISPATCH_SOURCE_TYPE_WRITE: dispatch_source_type_t {
   return _swift_dispatch_source_type_write()
 }
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_DATA_ADD")
-internal func _swift_dispatch_source_type_data_add() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_DATA_OR")
-internal func _swift_dispatch_source_type_data_or() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_PROC")
-internal func _swift_dispatch_source_type_proc() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_READ")
-internal func _swift_dispatch_source_type_read() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_SIGNAL")
-internal func _swift_dispatch_source_type_signal() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_TIMER")
-internal func _swift_dispatch_source_type_timer() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_VNODE")
-internal func _swift_dispatch_source_type_vnode() -> dispatch_source_type_t
-
-@warn_unused_result
-@_silgen_name("_swift_dispatch_source_type_WRITE")
-internal func _swift_dispatch_source_type_write() -> dispatch_source_type_t
-

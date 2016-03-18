@@ -51,3 +51,13 @@ SOURCE(SIGNAL)
 SOURCE(TIMER)
 SOURCE(VNODE)
 SOURCE(WRITE)
+
+// See comment in CFFuntime.c explaining why objc_retainAutoreleasedReturnValue is needed.
+extern void swift_release(void *);
+void * objc_retainAutoreleasedReturnValue(void *obj) {
+    if (obj) {
+        swift_release(obj);
+        return obj;
+    }
+    else return NULL;
+}
