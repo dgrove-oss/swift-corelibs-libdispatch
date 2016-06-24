@@ -93,11 +93,13 @@ _swift_dispatch_data_destructor_free(void) {
   return _dispatch_data_destructor_free;
 }
 
+#if HAVE_MACH
 SWIFT_CC(swift) DISPATCH_RUNTIME_STDLIB_INTERFACE
 extern "C" dispatch_block_t
 _swift_dispatch_data_destructor_munmap(void) {
   return _dispatch_data_destructor_munmap;
 }
+#endif
 
 SWIFT_CC(swift) DISPATCH_RUNTIME_STDLIB_INTERFACE
 extern "C" dispatch_block_t
@@ -174,9 +176,11 @@ _swift_dispatch_sync(dispatch_queue_t queue, dispatch_block_t block) {
 
 SOURCE(DATA_ADD)
 SOURCE(DATA_OR)
+#if HAVE_MACH
 SOURCE(MACH_SEND)
 SOURCE(MACH_RECV)
 SOURCE(MEMORYPRESSURE)
+#endif
 SOURCE(PROC)
 SOURCE(READ)
 SOURCE(SIGNAL)
