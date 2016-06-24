@@ -10,6 +10,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#if false
+
 public struct DispatchWorkItemFlags : OptionSet, RawRepresentable {
 	public let rawValue: UInt
 	public init(rawValue: UInt) { self.rawValue = rawValue }
@@ -38,14 +40,14 @@ public class DispatchWorkItem {
 	internal var _group: DispatchGroup?
 
 	public init(group: DispatchGroup? = nil, qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], block: @convention(block) () -> ()) {
-		_block =  _swift_dispatch_block_create_with_qos_class(__dispatch_block_flags_t(flags.rawValue),
+		_block =  _swift_dispatch_block_create_with_qos_class(dispatch_block_flags_t(flags.rawValue),
 			qos.qosClass.rawValue, Int32(qos.relativePriority), block)
 	}
 
 	// Used by DispatchQueue.synchronously<T> to provide a @noescape path through
 	// dispatch_block_t, as we know the lifetime of the block in question.
 	internal init(flags: DispatchWorkItemFlags = [], noescapeBlock: @noescape () -> ()) {
-		_block = _swift_dispatch_block_create_noescape(__dispatch_block_flags_t(flags.rawValue), noescapeBlock)
+		_block = _swift_dispatch_block_create_noescape(dispatch_block_flags_t(flags.rawValue), noescapeBlock)
 	}
 
 	public func perform() {
@@ -94,6 +96,7 @@ public class DispatchWorkItem {
 public extension DispatchWorkItem {
 	@available(*, deprecated, renamed: "DispatchWorkItem.wait(self:wallTimeout:)")
 	public func wait(timeout: DispatchWallTime) -> Int {
+	    let KERN_OPERATION_TIMED_OUT = 49
 		switch wait(wallTimeout: timeout) {
 		case .Success: return 0
 		case .TimedOut: return Int(KERN_OPERATION_TIMED_OUT)
@@ -112,10 +115,10 @@ internal typealias _DispatchBlock = @convention(block) () -> Void
 /// @convention(block) attributes. As such, all of the entry points are shimmed
 //// through Dispatch.mm with _DispatchBlock types.
 @_silgen_name("_swift_dispatch_block_create_with_qos_class")
-internal func _swift_dispatch_block_create_with_qos_class(_ flags: __dispatch_block_flags_t, _ qos: qos_class_t, _ relativePriority: Int32, _ block: _DispatchBlock) -> _DispatchBlock
+internal func _swift_dispatch_block_create_with_qos_class(_ flags: dispatch_block_flags_t, _ qos: dispatch_qos_class_t, _ relativePriority: Int32, _ block: _DispatchBlock) -> _DispatchBlock
 
 @_silgen_name("_swift_dispatch_block_create_noescape")
-internal func _swift_dispatch_block_create_noescape(_ flags: __dispatch_block_flags_t, _ block: @noescape () -> ()) -> _DispatchBlock
+internal func _swift_dispatch_block_create_noescape(_ flags: dispatch_block_flags_t, _ block: @noescape () -> ()) -> _DispatchBlock
 
 @_silgen_name("_swift_dispatch_block_wait")
 internal func _swift_dispatch_block_wait(_ block: _DispatchBlock, _ timeout: UInt64) -> Int
@@ -129,3 +132,6 @@ internal func _swift_dispatch_block_cancel(_ block: _DispatchBlock)
 @_silgen_name("_swift_dispatch_block_testcancel")
 internal func _swift_dispatch_block_testcancel(_ block: _DispatchBlock) -> Int
 
+#else
+  public func block_me() { }
+#endif

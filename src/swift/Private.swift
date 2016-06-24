@@ -12,14 +12,16 @@
 
 // Redeclarations of all SwiftPrivate functions with appropriate markup.
 
+#if false
+
 @available(*, unavailable, renamed:"DispatchQueue.init(label:attributes:target:)")
-public func dispatch_queue_create(_ label: UnsafePointer<Int8>?, _ attr: __OS_dispatch_queue_attr?) -> DispatchQueue
+public func dispatch_queue_create(_ label: UnsafePointer<Int8>?, _ attr: dispatch_queue_attr_t?) -> DispatchQueue
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchQueue.init(label:attributes:target:)")
-public func dispatch_queue_create_with_target(_ label: UnsafePointer<Int8>?, _ attr: __OS_dispatch_queue_attr?, _ queue: DispatchQueue?) -> DispatchQueue
+public func dispatch_queue_create_with_target(_ label: UnsafePointer<Int8>?, _ attr: dispatch_queue_attr_t?, _ queue: DispatchQueue?) -> DispatchQueue
 {
 	fatalError()
 }
@@ -163,19 +165,19 @@ public func dispatch_get_main_queue() -> DispatchQueue
 }
 
 @available(*, unavailable, renamed:"DispatchQueueAttributes.initiallyInactive")
-public func dispatch_queue_attr_make_initially_inactive(_ attr: __OS_dispatch_queue_attr?) -> __OS_dispatch_queue_attr
+public func dispatch_queue_attr_make_initially_inactive(_ attr: dispatch_queue_attr_t?) -> dispatch_queue_attr_t
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchQueueAttributes.autoreleaseWorkItem")
-public func dispatch_queue_attr_make_with_autorelease_frequency(_ attr: __OS_dispatch_queue_attr?, _ frequency: __dispatch_autorelease_frequency_t) -> __OS_dispatch_queue_attr
+public func dispatch_queue_attr_make_with_autorelease_frequency(_ attr: dispatch_queue_attr_t?, _ frequency: dispatch_autorelease_frequency_t) -> dispatch_queue_attr_t
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchQueueAttributes.qosUserInitiated")
-public func dispatch_queue_attr_make_with_qos_class(_ attr: __OS_dispatch_queue_attr?, _ qos_class: qos_class_t, _ relative_priority: Int32) -> __OS_dispatch_queue_attr
+public func dispatch_queue_attr_make_with_qos_class(_ attr: dispatch_queue_attr_t?, _ qos_class: dispatch_qos_class_t, _ relative_priority: Int32) -> dispatch_queue_attr_t
 {
 	fatalError()
 }
@@ -187,7 +189,7 @@ public func dispatch_queue_get_label(_ queue: DispatchQueue?) -> UnsafePointer<I
 }
 
 @available(*, unavailable, renamed:"getter:DispatchQueue.qos(self:)")
-public func dispatch_queue_get_qos_class(_ queue: DispatchQueue, _ relative_priority_ptr: UnsafeMutablePointer<Int32>?) -> qos_class_t
+public func dispatch_queue_get_qos_class(_ queue: DispatchQueue, _ relative_priority_ptr: UnsafeMutablePointer<Int32>?) -> dispatch_qos_class_t
 {
 	fatalError()
 }
@@ -259,7 +261,7 @@ public func dispatch_semaphore_signal(_ dsema: DispatchSemaphore) -> Int
 }
 
 @available(*, unavailable, message:"Use DispatchSource class methods")
-public func dispatch_source_create(_ type: __dispatch_source_type_t, _ handle: UInt, _ mask: UInt, _ queue: DispatchQueue?) -> DispatchSource
+public func dispatch_source_create(_ type: dispatch_source_type_t, _ handle: UInt, _ mask: UInt, _ queue: DispatchQueue?) -> DispatchSource
 {
 	fatalError()
 }
@@ -470,3 +472,7 @@ public var DISPATCH_TIME_NOW: Int {
 public var DISPATCH_TIME_FOREVER: Int {
   fatalError()
 }
+
+#else
+  public func private_me() { }
+#endif

@@ -10,7 +10,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
+#if false
+
+public struct DispatchData : RandomAccessCollection {
 	public typealias Iterator = DispatchDataIterator
 	public typealias Index = Int
 	public typealias Indices = DefaultRandomAccessIndices<DispatchData>
@@ -43,7 +45,7 @@ public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
 	/// - parameter bytes: A pointer to the memory. It will be copied.
 	/// - parameter count: The number of bytes to copy.
 	public init(bytes buffer: UnsafeBufferPointer<UInt8>) {
-		__wrapped = __dispatch_data_create(
+		__wrapped = dispatch_data_create(
 			buffer.baseAddress!, buffer.count, nil, _dispatch_data_destructor_default())
 	}
 
@@ -55,7 +57,7 @@ public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
 	public init(bytesNoCopy bytes: UnsafeBufferPointer<UInt8>, deallocator: Deallocator = .free) {
 		let (q, b) = deallocator._deallocator
 
-		__wrapped = __dispatch_data_create(
+		__wrapped = dispatch_data_create(
 			bytes.baseAddress!, bytes.count, q, b)
 	}
 
@@ -64,7 +66,7 @@ public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
 	}
 
 	public var count: Int {
-		return __dispatch_data_get_size(__wrapped)
+		return dispatch_data_get_size(__wrapped)
 	}
 
 	public func withUnsafeBytes<Result, ContentType>(
@@ -72,7 +74,7 @@ public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
 	{
 		var ptr: UnsafePointer<Void>? = nil
 		var size = 0;
-		let data = __dispatch_data_create_map(__wrapped, &ptr, &size)
+		let data = dispatch_data_create_map(__wrapped, &ptr, &size)
 		defer { _fixLifetime(data) }
 		return try body(UnsafePointer<ContentType>(ptr!))
 	}
@@ -93,7 +95,7 @@ public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
 	/// - parameter bytes: A pointer to the bytes to copy in to the data.
 	/// - parameter count: The number of bytes to copy.
 	public mutating func append(_ bytes: UnsafePointer<UInt8>, count: Int) {
-		let data = __dispatch_data_create(bytes, count, nil, _dispatch_data_destructor_default())
+		let data = dispatch_data_create(bytes, count, nil, _dispatch_data_destructor_default())
 		self.append(DispatchData(data: data))
 	}
 
@@ -101,7 +103,7 @@ public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
 	///
 	/// - parameter data: The data to append to this data.
 	public mutating func append(_ other: DispatchData) {
-		let data = __dispatch_data_create_concat(__wrapped, other as __DispatchData)
+		let data = dispatch_data_create_concat(__wrapped, other as __DispatchData)
 		__wrapped = data
 	}
 
@@ -114,7 +116,7 @@ public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
 
 	private func _copyBytesHelper(to pointer: UnsafeMutablePointer<UInt8>, from range: CountableRange<Index>) {
 		var copiedCount = 0
-		__dispatch_data_apply(__wrapped) { (data: __DispatchData, offset: Int, ptr: UnsafePointer<Void>, size: Int) in
+		dispatch_data_apply(__wrapped) { (data: __DispatchData, offset: Int, ptr: UnsafePointer<Void>, size: Int) in
 			let limit = Swift.min((range.endIndex - range.startIndex) - copiedCount, size)
 			memcpy(pointer + copiedCount, ptr, limit)
 			copiedCount += limit
@@ -175,11 +177,11 @@ public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
 	/// Sets or returns the byte at the specified index.
 	public subscript(index: Index) -> UInt8 {
 		var offset = 0
-		let subdata = __dispatch_data_copy_region(__wrapped, index, &offset)
+		let subdata = dispatch_data_copy_region(__wrapped, index, &offset)
 
 		var ptr: UnsafePointer<Void>? = nil
 		var size = 0
-		let map = __dispatch_data_create_map(subdata, &ptr, &size)
+		let map = dispatch_data_create_map(subdata, &ptr, &size)
 		defer { _fixLifetime(map) }
 
 		let pptr = UnsafePointer<UInt8>(ptr!)
@@ -194,14 +196,14 @@ public struct DispatchData : RandomAccessCollection, _ObjectiveCBridgeable {
 	///
 	/// - parameter range: The range to copy.
 	public func subdata(in range: CountableRange<Index>) -> DispatchData {
-		let subrange = __dispatch_data_create_subrange(
+		let subrange = dispatch_data_create_subrange(
 			__wrapped, range.startIndex, range.endIndex - range.startIndex)
 		return DispatchData(data: subrange)
 	}
 
 	public func region(location: Int) -> (data: DispatchData, offset: Int) {
 		var offset: Int = 0
-		let data = __dispatch_data_copy_region(__wrapped, location, &offset)
+		let data = dispatch_data_copy_region(__wrapped, location, &offset)
 		return (DispatchData(data: data), offset)
 	}
 
@@ -235,7 +237,7 @@ public struct DispatchDataIterator : IteratorProtocol, Sequence {
 	public init(_data: DispatchData) {
 		var ptr: UnsafePointer<Void>?
 		self._count = 0
-		self._data = __dispatch_data_create_map(
+		self._data = dispatch_data_create_map(
 			_data as __DispatchData, &ptr, &self._count)
 		self._ptr = UnsafePointer(ptr!)
 		self._position = _data.startIndex
@@ -258,32 +260,6 @@ public struct DispatchDataIterator : IteratorProtocol, Sequence {
 	internal var _position: DispatchData.Index
 }
 
-extension DispatchData {
-	public static func _isBridgedToObjectiveC() -> Bool {
-		return true
-	}
-
-	@_semantics("convertToObjectiveC")
-	public func _bridgeToObjectiveC() -> __DispatchData {
-		return unsafeBitCast(__wrapped, to: __DispatchData.self)
-	}
-
-	public static func _forceBridgeFromObjectiveC(_ input: __DispatchData, result: inout DispatchData?) {
-		result = DispatchData(data: input)
-	}
-
-	public static func _conditionallyBridgeFromObjectiveC(_ input: __DispatchData, result: inout DispatchData?) -> Bool {
-		result = DispatchData(data: input)
-		return true
-	}
-
-	public static func _unconditionallyBridgeFromObjectiveC(_ source: __DispatchData?) -> DispatchData {
-		var result: DispatchData? = nil
-		_forceBridgeFromObjectiveC(source!, result: &result)
-		return result!
-	}
-}
-
 typealias _swift_data_applier = @convention(block) @noescape (__DispatchData, Int, UnsafePointer<Void>, Int) -> Bool
 
 @_silgen_name("_swift_dispatch_data_apply")
@@ -300,3 +276,7 @@ internal func _dispatch_data_destructor_munmap() -> _DispatchBlock
 
 @_silgen_name("_swift_dispatch_data_destructor_default")
 internal func _dispatch_data_destructor_default() -> _DispatchBlock
+
+#else
+  public func data_me() { }
+#endif

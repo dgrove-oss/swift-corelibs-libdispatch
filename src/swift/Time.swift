@@ -10,6 +10,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#if false
+
 // dispatch/time.h
 // DISPATCH_TIME_NOW: ok
 // DISPATCH_TIME_FOREVER: ok
@@ -106,3 +108,7 @@ public func -(time: DispatchWallTime, seconds: Double) -> DispatchWallTime {
 	let t = __dispatch_time(time.rawValue, Int64(-seconds * Double(NSEC_PER_SEC)))
 	return DispatchWallTime(rawValue: t)
 }
+
+#else
+  public func time_me() { }
+#endif

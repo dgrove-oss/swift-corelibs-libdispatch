@@ -12,6 +12,8 @@
 
 // import Foundation
 
+#if false
+
 public extension DispatchSourceType {
 	typealias DispatchSourceHandler = @convention(block) () -> Void
 
@@ -356,34 +358,38 @@ public extension DispatchSourceUserDataOr {
 }
 
 @_silgen_name("_swift_dispatch_source_type_DATA_ADD")
-internal func _swift_dispatch_source_type_data_add() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_data_add() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_DATA_OR")
-internal func _swift_dispatch_source_type_data_or() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_data_or() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_MACH_SEND")
-internal func _swift_dispatch_source_type_mach_send() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_mach_send() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_MACH_RECV")
-internal func _swift_dispatch_source_type_mach_recv() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_mach_recv() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_MEMORYPRESSURE")
-internal func _swift_dispatch_source_type_memorypressure() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_memorypressure() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_PROC")
-internal func _swift_dispatch_source_type_proc() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_proc() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_READ")
-internal func _swift_dispatch_source_type_read() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_read() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_SIGNAL")
-internal func _swift_dispatch_source_type_signal() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_signal() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_TIMER")
-internal func _swift_dispatch_source_type_timer() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_timer() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_VNODE")
-internal func _swift_dispatch_source_type_vnode() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_vnode() -> dispatch_source_type_t
 
 @_silgen_name("_swift_dispatch_source_type_WRITE")
-internal func _swift_dispatch_source_type_write() -> __dispatch_source_type_t
+internal func _swift_dispatch_source_type_write() -> dispatch_source_type_t
+
+#else
+  public func source_me() { }
+#endif

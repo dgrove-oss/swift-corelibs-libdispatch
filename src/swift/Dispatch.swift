@@ -12,6 +12,8 @@
 
 @_exported import Dispatch
 
+#if false
+
 /// dispatch_assert
 
 @available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
@@ -94,7 +96,7 @@ public struct DispatchQoS : Equatable {
 		case unspecified
 
 		@available(OSX 10.10, iOS 8.0, *)
-		internal init?(qosClass: qos_class_t) {
+		internal init?(qosClass: dispatch_qos_class_t) {
 			switch qosClass {
 			case QOS_CLASS_BACKGROUND: self = .background
 			case QOS_CLASS_UTILITY: self = .utility
@@ -107,7 +109,7 @@ public struct DispatchQoS : Equatable {
 		}
 
 		@available(OSX 10.10, iOS 8.0, *)
-		internal var rawValue: qos_class_t {
+		internal var rawValue: dispatch_qos_class_t {
 			switch self {
 			case .background: return QOS_CLASS_BACKGROUND
 			case .utility: return QOS_CLASS_UTILITY
@@ -206,3 +208,6 @@ public extension DispatchSemaphore {
 		}
 	}
 }
+#else
+  public func dispatch_me() { }
+#endif

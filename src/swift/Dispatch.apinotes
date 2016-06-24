@@ -16,7 +16,7 @@ Typedefs:
 - Name: dispatch_group_t
   Availability: nonswift
 - Name: dispatch_qos_class_t
-  Availability: nonswift
+  SwiftPrivate: true
 - Name: dispatch_data_applier_t
   Availability: nonswift
 - Name: dispatch_fd_t
@@ -53,48 +53,6 @@ Typedefs:
   Availability: nonswift
 - Name: dispatch_source_vnode_flags_t
   Availability: nonswift
-Classes:
-- Name: OS_dispatch_object
-  SwiftName: DispatchObject
-- Name: OS_dispatch_queue
-  SwiftName: DispatchQueue
-- Name: OS_dispatch_io
-  SwiftName: DispatchIO
-- Name: OS_dispatch_semaphore
-  SwiftName: DispatchSemaphore
-- Name: OS_dispatch_group
-  SwiftName: DispatchGroup
-- Name: OS_dispatch_source
-  SwiftName: DispatchSource
-- Name: OS_dispatch_queue_attr
-  SwiftPrivate: true
-- Name: OS_dispatch_data
-  SwiftName: __DispatchData
-Protocols:
-- Name: OS_dispatch_source
-  SwiftName: DispatchSourceType
-- Name: OS_dispatch_source_mach_send
-  SwiftName: DispatchSourceMachSend
-- Name: OS_dispatch_source_mach_recv
-  SwiftName: DispatchSourceMachReceive
-- Name: OS_dispatch_source_memorypressure
-  SwiftName: DispatchSourceMemoryPressure
-- Name: OS_dispatch_source_proc
-  SwiftName: DispatchSourceProcess
-- Name: OS_dispatch_source_read
-  SwiftName: DispatchSourceRead
-- Name: OS_dispatch_source_signal
-  SwiftName: DispatchSourceSignal
-- Name: OS_dispatch_source_timer
-  SwiftName: DispatchSourceTimer
-- Name: OS_dispatch_source_data_or
-  SwiftName: DispatchSourceUserDataOr
-- Name: OS_dispatch_source_data_add
-  SwiftName: DispatchSourceUserDataAdd
-- Name: OS_dispatch_source_vnode
-  SwiftName: DispatchSourceFileSystemObject
-- Name: OS_dispatch_source_write
-  SwiftName: DispatchSourceWrite
 Functions:
 - Name: dispatch_release
   Availability: nonswift
@@ -102,12 +60,10 @@ Functions:
   Availability: nonswift
 # dispatch_queue_t
 - Name: dispatch_queue_create
-  SwiftName: 'DispatchQueue.init(__label:attr:)'
   SwiftPrivate: true
 - Name: dispatch_get_global_queue
   SwiftPrivate: true
 - Name: dispatch_queue_create_with_target
-  SwiftName: 'DispatchQueue.init(__label:attr:queue:)'
   SwiftPrivate: true
 - Name: dispatch_assert_queue
   SwiftPrivate: true
@@ -128,7 +84,7 @@ Functions:
 - Name: dispatch_apply_f
   Availability: nonswift
 - Name: dispatch_sync
-  SwiftName: 'DispatchQueue.sync(self:execute:)'
+  SwiftPrivate: true
 - Name: dispatch_sync_f
   Availability: nonswift
 - Name: dispatch_barrier_sync
@@ -159,13 +115,13 @@ Functions:
   SwiftPrivate: true
 # dispatch_object_t
 - Name: dispatch_set_target_queue
-  SwiftName: 'DispatchObject.setTarget(self:queue:)'
+  SwiftPrivate: true
 - Name: dispatch_activate
-  SwiftName: 'DispatchObject.activate(self:)'
+  SwiftPrivate: true
 - Name: dispatch_suspend
-  SwiftName: 'DispatchObject.suspend(self:)'
+  SwiftPrivate: true
 - Name: dispatch_resume
-  SwiftName: 'DispatchObject.resume(self:)'
+  SwiftPrivate: true
 - Name: dispatch_set_finalizer_f
   Availability: nonswift
 - Name: dispatch_get_context
@@ -213,7 +169,7 @@ Functions:
   SwiftPrivate: true
 # dispatch_group_t
 - Name: dispatch_group_create
-  SwiftName: 'DispatchGroup.init()'
+  SwiftPrivate: true
   Availability: available
 - Name: dispatch_group_async
   SwiftPrivate: true
@@ -226,19 +182,17 @@ Functions:
 - Name: dispatch_group_notify_f
   Availability: nonswift
 - Name: dispatch_group_enter
-  SwiftName: 'DispatchGroup.enter(self:)'
+  SwiftPrivate: true
 - Name: dispatch_group_leave
-  SwiftName: 'DispatchGroup.leave(self:)'
+  SwiftPrivate: true
 # dispatch_io
 - Name: dispatch_io_create
   SwiftPrivate: true
-  SwiftName: 'DispatchIO.init(__type:fd:queue:handler:)'
+  SwiftPrivate: true
 - Name: dispatch_io_create_with_path
   SwiftPrivate: true
-  SwiftName: 'DispatchIO.init(__type:path:oflag:mode:queue:handler:)'
 - Name: dispatch_io_create_with_io
   SwiftPrivate: true
-  SwiftName: 'DispatchIO.init(__type:io:queue:handler:)'
 - Name: dispatch_io_read
   SwiftPrivate: true
 - Name: dispatch_io_write
@@ -246,13 +200,13 @@ Functions:
 - Name: dispatch_io_close
   SwiftPrivate: true
 - Name: dispatch_io_barrier
-  SwiftName: 'DispatchIO.barrier(self:execute:)'
+  SwiftPrivate: true
 - Name: dispatch_io_get_descriptor
-  SwiftName: 'getter:DispatchIO.fileDescriptor(self:)'
+  SwiftPrivate: true
 - Name: dispatch_io_set_high_water
-  SwiftName: 'DispatchIO.setLimit(self:highWater:)'
+  SwiftPrivate: true
 - Name: dispatch_io_set_low_water
-  SwiftName: 'DispatchIO.setLimit(self:lowWater:)'
+  SwiftPrivate: true
 - Name: dispatch_io_set_interval
   SwiftPrivate: true
 - Name: dispatch_read
@@ -261,7 +215,7 @@ Functions:
   SwiftPrivate: true
 # dispatch_semaphore
 - Name: dispatch_semaphore_create
-  SwiftName: 'DispatchSemaphore.init(value:)'
+  SwiftPrivate: true
 - Name: dispatch_semaphore_wait
   SwiftPrivate: true
 - Name: dispatch_semaphore_signal
@@ -301,7 +255,7 @@ Functions:
 - Name: dispatch_walltime
   SwiftPrivate: true
 - Name: dispatch_main
-  SwiftName: 'dispatchMain()'
+  SwiftPrivate: true
 Globals:
 - Name: _dispatch_data_destructor_free
   Availability: nonswift

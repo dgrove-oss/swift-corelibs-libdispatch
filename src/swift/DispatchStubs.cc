@@ -11,11 +11,11 @@
 //===----------------------------------------------------------------------===//
 
 #include <dispatch/dispatch.h>
-#include <objc/runtime.h>
 #include <stdio.h>
 
 #define DISPATCH_RUNTIME_STDLIB_INTERFACE __attribute__((__visibility__("default")))
 
+#if 0
 @protocol OS_dispatch_source;
 @protocol OS_dispatch_source_mach_send;
 @protocol OS_dispatch_source_mach_recv;
@@ -49,7 +49,13 @@ static void _dispatch_overlay_constructor() {
   }
 }
 
+#endif
+
+#if 0
 #include "swift/Runtime/Config.h"
+#else
+#define SWIFT_CC(x) /* FIXME!! */
+#endif
 
 SWIFT_CC(swift) DISPATCH_RUNTIME_STDLIB_INTERFACE 
 extern "C" dispatch_queue_attr_t
@@ -95,7 +101,7 @@ _swift_dispatch_data_destructor_munmap(void) {
 
 SWIFT_CC(swift) DISPATCH_RUNTIME_STDLIB_INTERFACE
 extern "C" dispatch_block_t
-_swift_dispatch_block_create_with_qos_class(dispatch_block_flags_t flags, qos_class_t qos, int relative_priority, dispatch_block_t block) {
+_swift_dispatch_block_create_with_qos_class(dispatch_block_flags_t flags, dispatch_qos_class_t qos, int relative_priority, dispatch_block_t block) {
   return dispatch_block_create_with_qos_class(flags, qos, relative_priority, block);
 }
 

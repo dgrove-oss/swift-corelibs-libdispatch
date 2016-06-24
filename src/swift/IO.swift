@@ -10,6 +10,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#if false
+
 public extension DispatchIO {
 
 	public enum StreamType : UInt  {
@@ -125,3 +127,7 @@ extension DispatchIO {
 		setInterval(interval: .nanoseconds(Int(interval)), flags: flags)
 	}
 }
+
+#else
+  public func io_me() { }
+#endif

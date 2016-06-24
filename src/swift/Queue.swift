@@ -12,6 +12,8 @@
 
 // dispatch/queue.h
 
+#if false
+
 public struct DispatchQueueAttributes : OptionSet {
 	public let rawValue: UInt64
 	public init(rawValue: UInt64) { self.rawValue = rawValue }
@@ -408,7 +410,7 @@ private func _destructDispatchSpecificValue(ptr: UnsafeMutablePointer<Void>?) {
 }
 
 @_silgen_name("_swift_dispatch_queue_concurrent")
-internal func _swift_dispatch_queue_concurrent() -> __OS_dispatch_queue_attr
+internal func _swift_dispatch_queue_concurrent() -> dispatch_queue_attr_t
 
 @_silgen_name("_swift_dispatch_get_main_queue")
 internal func _swift_dispatch_get_main_queue() -> DispatchQueue
@@ -427,3 +429,7 @@ internal func _swift_dispatch_sync(_ queue: DispatchQueue, _ block: _DispatchBlo
 
 @_silgen_name("_swift_dispatch_apply_current")
 internal func _swift_dispatch_apply_current(_ iterations: Int, _ block: @convention(block) @noescape (Int) -> Void)
+
+#else
+  public func queue_me() { }
+#endif
