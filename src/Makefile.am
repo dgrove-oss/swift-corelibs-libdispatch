@@ -148,7 +148,7 @@ SWIFTC_FLAGS = -Xcc -D__DISPATCH_BUILDING_SWIFT_MODULE__=1 -Xcc -fmodule-map-fil
 
 $(abs_builddir)/swift/%.o:	$(abs_srcdir)/swift/%.swift
 	$(SWIFTC) -frontend -c $(SWIFT_ABS_SRC_FILES) -primary-file $< \
-	$(SWIFTC_FLAGS) -module-name Dispatch -module-link-name Dispatch \
+	$(SWIFTC_FLAGS) -module-name Dispatch -module-link-name dispatch \
 	-o $@ -emit-module-path $@.~partial.swiftmodule \
 	-emit-module-doc-path $@.~partial.swiftdoc -emit-dependencies-path $@.d \
 	-emit-reference-dependencies-path $@.swiftdeps \
@@ -156,7 +156,7 @@ $(abs_builddir)/swift/%.o:	$(abs_srcdir)/swift/%.swift
 
 $(abs_builddir)/swift/Dispatch.swiftmodule: $(SWIFT_ABS_SRC_FILES)
 	$(SWIFTC) -frontend -emit-module $(SWIFT_OBJ_FILES:%=%.~partial.swiftmodule) \
-	$(SWIFTC_FLAGS) -module-cache-path $(top_builddir) -module-link-name Dispatch \
+	$(SWIFTC_FLAGS) -module-cache-path $(top_builddir) -module-link-name dispatch \
 	-o $@ -emit-module-doc-path $(@:%.swiftmodule=%.swiftdoc)
 
 if HAVE_SWIFT
