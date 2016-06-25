@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 @_exported import Dispatch
+import CDispatch
 
 #if false
 
@@ -209,5 +210,5 @@ public extension DispatchSemaphore {
 	}
 }
 #else
-  public func dispatch_me() { }
+  public func dispatch_me() { print("You called dispatch_me!!") }
 #endif
