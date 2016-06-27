@@ -47,7 +47,7 @@ public class DispatchIO : DispatchObject {
 
 	internal init(__type: UInt, fd: Int32, queue: DispatchQueue,
 				  handler: (error: Int32) -> Void) {
-		__wrapped = dispatch_io_create_with_path(__type, fd, queue.__wrapped, handler)
+		__wrapped = dispatch_io_create(__type, fd, queue.__wrapped, handler)
 	}
 
 	internal init(__type: UInt, path: UnsafePointer<Int8>, oflag: Int32,
@@ -61,7 +61,7 @@ public class DispatchIO : DispatchObject {
 	}
 
 	public func setLimit(highWater: Int) {
-		dispatch_io_set_high_water(__wrapped, lowWater)
+		dispatch_io_set_high_water(__wrapped, highWater)
 	}
 
 	public func setLimit(lowWater: Int) {
@@ -81,7 +81,7 @@ public class DispatchQueue : DispatchObject {
 	}
 
 	internal init(__label: String, attr:  dispatch_queue_attr_t?, queue: DispatchQueue?) {
-		__wrapped = dispatch_queue_create_with_target(__label, attr, target.__wrapped)
+		__wrapped = dispatch_queue_create_with_target(__label, attr, queue?.__wrapped)
 	}
 
 	internal init(queue:dispatch_queue_t) {
@@ -89,49 +89,131 @@ public class DispatchQueue : DispatchObject {
 	}
 
 	public func setTarget(queue:DispatchQueue) {
-		dispatch_set_target_queue(self.__wrapped, queue.__wrapped)
+		dispatch_set_target_queue(_dispatch_pun_queue_to_object(self.__wrapped), queue.__wrapped)
 	}
 }
 
-public class DispatchSourceType : DispatchObject {
-
-}
-
 public class DispatchSource : DispatchObject {
+	internal let __wrapped:dispatch_source_t
+
+	internal init(source:dispatch_source_t) {
+		__wrapped = source
+	}
+}
+
+#if false /* Source is annoying... */
+
+public protocol DispatchSourceType {
+  typealias DispatchSourceHandler = @convention(block) () -> Void
+
+  func setEventHandler(handler: DispatchSourceHandler?)
+
+  func setCancelHandler(handler: DispatchSourceHandler?)
+
+  func setRegistrationHandler(handler: DispatchSourceHandler?)
+
+  func cancel()
+
+  func resume()
+
+  func suspend()
+
+  var handle: UInt { get }
+
+  var mask: UInt { get }
+
+  var data: UInt { get }
+
+  var isCancelled: Bool { get }
+}
+
+public protocol DispatchSourceUserDataAdd : DispatchSourceType {
+
+  func mergeData(value: UInt)
 
 }
 
-public class DispatchSourceMachSend : DispatchSource {
+public protocol DispatchSourceUserDataOr : DispatchSourceType {
+
+  func mergeData(value: UInt)
 
 }
 
-public class DispatchSourceMachReceive : DispatchSource {
+#if HAVE_MACH
+public protocol DispatchSourceMachSend : DispatchSourceType {
+
+  public var handle: mach_port_t { get }
+
+  public var data: DispatchSource.MachSendEvent { get }
+
+  public var mask: DispatchSource.MachSendEvent { get }
 
 }
 
-public class DispatchSourceMemoryPressure : DispatchSource {
+public protocol DispatchSourceMachReceive : DispatchSourceType {
+  var handle: mach_port_t { get }
+}
+#endif
+
+public protocol DispatchSourceMemoryPressure : DispatchSourceType {
+
+  public var data: DispatchSource.MemoryPressureEvent { get }
+
+  public var mask: DispatchSource.MemoryPressureEvent { get }
 
 }
 
-public class DispatchSourceProcess : DispatchSource {
+public protocol DispatchSourceProcess : DispatchSourceType {
+
+  var handle: pid_t { get }
+
+  var data: DispatchSource.ProcessEvent { get }
+
+  var mask: DispatchSource.ProcessEvent { get }
 
 }
 
-public class DispatchSourceTimer : DispatchSource {
+public protocol DispatchSourceRead : DispatchSourceType {
 
 }
 
-public class DispatchSourceFileSystemObject : DispatchSource {
+public protocol DispatchSourceSignal : DispatchSourceType {
 
 }
 
-public class DispatchSourceUserDataAdd : DispatchSource {
+public protocol DispatchSourceTimer : DispatchSourceType {
+
+  func setTimer(start: DispatchTime, leeway: DispatchTimeInterval)
+
+  func setTimer(walltime start: DispatchWalltime, leeway: DispatchTimeInterval)
+
+  func setTimer(start: DispatchTime, interval: DispatchTimeInterval, leeway: DispatchTimeInterval)
+
+  func setTimer(start: DispatchTime, interval: Double, leeway: DispatchTimeInterval)
+
+  func setTimer(walltime start: DispatchWalltime, interval: DispatchTimeInterval, leeway: DispatchTimeInterva)
+
+  func setTimer(walltime start: DispatchWalltime, interval: Double, leeway: DispatchTimeInterval)
 
 }
 
-public class DispatchSourceUserDataOr : DispatchSource {
+public protocol DispatchSourceFileSystemObject : DispatchSourceType {
+
+  var handle: Int32 { get }
+
+  var data: DispatchSource.FileSystemEvent { get }
+
+  var mask: DispatchSource.FileSystemEvent { get }
 
 }
+
+public protocol DispatchSourceWrite : DispatchSourceType {
+
+}
+
+
+#endif // end Source is annoying...
+
 
 
 internal enum _OSQoSClass : UInt32  {
@@ -148,9 +230,13 @@ internal enum _OSQoSClass : UInt32  {
 		case 0x19: self = .QOS_CLASS_USER_INITIATED
 		case 0x15: self = .QOS_CLASS_DEFAULT
 		case 0x11: self = QOS_CLASS_UTILITY
-		case 0x09: self = QOS_CLASS_BACKGROUND = 0x09
+		case 0x09: self = QOS_CLASS_BACKGROUND
 		case 0x00: self = QOS_CLASS_UNSPECIFIED
 		default: return nil
 		}
 	}
 }
+
+
+@_silgen_name("_dispatch_pun_queue_to_object")
+internal func _dispatch_pun_queue_to_object(_ queue:dispatch_queue_t) -> dispatch_object_t

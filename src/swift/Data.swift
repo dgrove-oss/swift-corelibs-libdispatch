@@ -23,18 +23,27 @@ public struct DispatchData : RandomAccessCollection {
 		/// Use `free`
 		case free
 
+#if HAVE_MACH
 		/// Use `munmap`
 		case unmap
+#endif
 
 		/// A custom deallocator
 		case custom(DispatchQueue?, @convention(block) () -> Void)
 
 		private var _deallocator: (DispatchQueue?, @convention(block) () -> Void) {
+#if HAVE_MACH
 			switch self {
 			case .free: return (nil, _dispatch_data_destructor_free())
 			case .unmap: return (nil, _dispatch_data_destructor_munmap())
 			case .custom(let q, let b): return (q, b)
 			}
+#else
+			switch self {
+			case .free: return (nil, _dispatch_data_destructor_free())
+			case .custom(let q, let b): return (q, b)
+			}
+#endif
 		}
 	}
 
@@ -269,8 +278,10 @@ internal func _swift_dispatch_data_empty() -> dispatch_data_t
 @_silgen_name("_swift_dispatch_data_destructor_free")
 internal func _dispatch_data_destructor_free() -> _DispatchBlock
 
+#if HAVE_MACH
 @_silgen_name("_swift_dispatch_data_destructor_munmap")
 internal func _dispatch_data_destructor_munmap() -> _DispatchBlock
+#endif
 
 @_silgen_name("_swift_dispatch_data_destructor_default")
 internal func _dispatch_data_destructor_default() -> _DispatchBlock
