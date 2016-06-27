@@ -10,7 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if false
+import CDispatch
 
 public extension DispatchIO {
 
@@ -127,7 +127,3 @@ extension DispatchIO {
 		setInterval(interval: .nanoseconds(Int(interval)), flags: flags)
 	}
 }
-
-#else
-  public func io_me() { }
-#endif

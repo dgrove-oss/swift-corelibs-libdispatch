@@ -10,9 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-// import Foundation
-
-#if false
+import CDispatch
 
 public extension DispatchSourceType {
 	typealias DispatchSourceHandler = @convention(block) () -> Void
@@ -390,6 +388,3 @@ internal func _swift_dispatch_source_type_vnode() -> dispatch_source_type_t
 @_silgen_name("_swift_dispatch_source_type_WRITE")
 internal func _swift_dispatch_source_type_write() -> dispatch_source_type_t
 
-#else
-  public func source_me() { }
-#endif

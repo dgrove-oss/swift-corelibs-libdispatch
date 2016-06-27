@@ -10,55 +10,55 @@
 //
 //===----------------------------------------------------------------------===//
 
-
-#if false
+import CDispatch
 
 /// Mirrors Objective-C DispatchObject class hierarchy
 
-
 public class DispatchObject {
-       let cobj:OpaquePointer;
-
-       deinit {
-           dispatch_release(cobj)
-       }
-
-       init(_ cobj:OpaquePointer) {
-           self.cobj = cobj
-       }
 }
 
 
 public class DispatchGroup : DispatchObject {
+	internal let __wrapped:dispatch_group_t;
 
-       public init() {
-           super.init(dispatch_qroup_create())
-       }
+	public override init() {
+		__wrapped = dispatch_group_create()
+	}
 
-       public func enter() {
-              dispatch_group_enter(self.cobj)
-       }
+	public func enter() {
+		dispatch_group_enter(__wrapped)
+	}
 
-       public func leave() {
-              dispatch_group_leave(self.cobj)
-       }
+	public func leave() {
+		dispatch_group_enter(__wrapped)
+	}
 }
 
 public class DispatchSemaphore : DispatchObject {
+	internal let __wrapped:dispatch_semaphore_t;
 
+	public init(value:Int) {
+		__wrapped = dispatch_semaphore_create(value)
+	}
 }
 
 public class DispatchIO : DispatchObject {
+#if false
 	public func setLimit(highWater: Int) {
 	// FIXME: implement
 	}
 	public func setLimit(lowWater: Int) {
 	// FIXME: implement
 	}
+#endif
 }
 
 public class DispatchQueue : DispatchObject {
+	internal let __wrapped:dispatch_queue_t;
 
+	internal init(__label:String, attr:DispatchQueueAttributes) {
+		__wrapped = dispatch_queue_create(__label, attr)
+	}
 }
 
 public class DispatchSourceType : DispatchObject {
@@ -101,10 +101,12 @@ public class DispatchSourceUserDataOr : DispatchSource {
 
 }
 
-class __DispatchData {
 
+internal enum dispatch_qos_class_t : UInt  {
+	case QOS_CLASS_USER_INTERACTIVE = 0x21
+	case QOS_CLASS_USER_INITIATED = 0x19
+	case QOS_CLASS_DEFAULT = 0x15
+	case QOS_CLASS_UTILITY = 0x11
+	case QOS_CLASS_BACKGROUND = 0x09
+	case QOS_CLASS_UNSPECIFIED = 0x00
 }
-
-#else
-  public func wrapper_me() { }
-#endif

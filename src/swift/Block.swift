@@ -10,7 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if false
+import CDispatch
 
 public struct DispatchWorkItemFlags : OptionSet, RawRepresentable {
 	public let rawValue: UInt
@@ -96,10 +96,9 @@ public class DispatchWorkItem {
 public extension DispatchWorkItem {
 	@available(*, deprecated, renamed: "DispatchWorkItem.wait(self:wallTimeout:)")
 	public func wait(timeout: DispatchWallTime) -> Int {
-	    let KERN_OPERATION_TIMED_OUT = 49
 		switch wait(wallTimeout: timeout) {
 		case .Success: return 0
-		case .TimedOut: return Int(KERN_OPERATION_TIMED_OUT)
+		case .TimedOut: return DispatchTimeoutResult.KERN_OPERATION_TIMED_OUT
 		}
 	}
 }
@@ -131,7 +130,3 @@ internal func _swift_dispatch_block_cancel(_ block: _DispatchBlock)
 
 @_silgen_name("_swift_dispatch_block_testcancel")
 internal func _swift_dispatch_block_testcancel(_ block: _DispatchBlock) -> Int
-
-#else
-  public func block_me() { }
-#endif

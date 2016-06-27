@@ -10,7 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if false
+import CDispatch
 
 public struct DispatchData : RandomAccessCollection {
 	public typealias Iterator = DispatchDataIterator
@@ -38,7 +38,7 @@ public struct DispatchData : RandomAccessCollection {
 		}
 	}
 
-	private var __wrapped: __DispatchData
+	private var __wrapped: dispatch_data_t
 
 	/// Initialize a `Data` with copied memory content.
 	///
@@ -57,11 +57,10 @@ public struct DispatchData : RandomAccessCollection {
 	public init(bytesNoCopy bytes: UnsafeBufferPointer<UInt8>, deallocator: Deallocator = .free) {
 		let (q, b) = deallocator._deallocator
 
-		__wrapped = dispatch_data_create(
-			bytes.baseAddress!, bytes.count, q, b)
+		__wrapped = dispatch_data_create(bytes.baseAddress!, bytes.count, q?.__wrapped, b)
 	}
 
-	internal init(data: __DispatchData) {
+	internal init(data: dispatch_data_t) {
 		__wrapped = data
 	}
 
@@ -82,7 +81,7 @@ public struct DispatchData : RandomAccessCollection {
 	public func enumerateBytes(
 		block: @noescape (buffer: UnsafeBufferPointer<UInt8>, byteIndex: Int, stop: inout Bool) -> Void) 
 	{
-		_swift_dispatch_data_apply(__wrapped) { (data: __DispatchData, offset: Int, ptr: UnsafePointer<Void>, size: Int) in
+		_swift_dispatch_data_apply(__wrapped) { (data: dispatch_data_t, offset: Int, ptr: UnsafePointer<Void>, size: Int) in
 			let bp = UnsafeBufferPointer(start: UnsafePointer<UInt8>(ptr), count: size)
 			var stop = false
 			block(buffer: bp, byteIndex: offset, stop: &stop)
@@ -103,7 +102,7 @@ public struct DispatchData : RandomAccessCollection {
 	///
 	/// - parameter data: The data to append to this data.
 	public mutating func append(_ other: DispatchData) {
-		let data = dispatch_data_create_concat(__wrapped, other as __DispatchData)
+		let data = dispatch_data_create_concat(__wrapped, other.__wrapped)
 		__wrapped = data
 	}
 
@@ -116,7 +115,7 @@ public struct DispatchData : RandomAccessCollection {
 
 	private func _copyBytesHelper(to pointer: UnsafeMutablePointer<UInt8>, from range: CountableRange<Index>) {
 		var copiedCount = 0
-		dispatch_data_apply(__wrapped) { (data: __DispatchData, offset: Int, ptr: UnsafePointer<Void>, size: Int) in
+		dispatch_data_apply(__wrapped) { (data: dispatch_data_t, offset: Int, ptr: UnsafePointer<Void>, size: Int) in
 			let limit = Swift.min((range.endIndex - range.startIndex) - copiedCount, size)
 			memcpy(pointer + copiedCount, ptr, limit)
 			copiedCount += limit
@@ -237,8 +236,7 @@ public struct DispatchDataIterator : IteratorProtocol, Sequence {
 	public init(_data: DispatchData) {
 		var ptr: UnsafePointer<Void>?
 		self._count = 0
-		self._data = dispatch_data_create_map(
-			_data as __DispatchData, &ptr, &self._count)
+		self._data = dispatch_data_create_map(_data.__wrapped, &ptr, &self._count)
 		self._ptr = UnsafePointer(ptr!)
 		self._position = _data.startIndex
 	}
@@ -254,19 +252,19 @@ public struct DispatchDataIterator : IteratorProtocol, Sequence {
 		return element
 	}
 
-	internal let _data: __DispatchData
+	internal let _data: dispatch_data_t
 	internal var _ptr: UnsafePointer<UInt8>
 	internal var _count: Int
 	internal var _position: DispatchData.Index
 }
 
-typealias _swift_data_applier = @convention(block) @noescape (__DispatchData, Int, UnsafePointer<Void>, Int) -> Bool
+typealias _swift_data_applier = @convention(block) @noescape (dispatch_data_t, Int, UnsafePointer<Void>, Int) -> Bool
 
 @_silgen_name("_swift_dispatch_data_apply")
-internal func _swift_dispatch_data_apply(_ data: __DispatchData, _ block: _swift_data_applier)
+internal func _swift_dispatch_data_apply(_ data: dispatch_data_t, _ block: _swift_data_applier)
 
 @_silgen_name("_swift_dispatch_data_empty")
-internal func _swift_dispatch_data_empty() -> __DispatchData
+internal func _swift_dispatch_data_empty() -> dispatch_data_t
 
 @_silgen_name("_swift_dispatch_data_destructor_free")
 internal func _dispatch_data_destructor_free() -> _DispatchBlock
@@ -276,7 +274,3 @@ internal func _dispatch_data_destructor_munmap() -> _DispatchBlock
 
 @_silgen_name("_swift_dispatch_data_destructor_default")
 internal func _dispatch_data_destructor_default() -> _DispatchBlock
-
-#else
-  public func data_me() { }
-#endif

@@ -12,7 +12,7 @@
 
 // dispatch/queue.h
 
-#if false
+import CDispatch
 
 public struct DispatchQueueAttributes : OptionSet {
 	public let rawValue: UInt64
@@ -51,8 +51,8 @@ public struct DispatchQueueAttributes : OptionSet {
 	@available(*, deprecated, message: ".noQoS has no effect, it should not be used")
 	public static let noQoS = DispatchQueueAttributes(rawValue: 1<<11)
 
-	private var attr: __OS_dispatch_queue_attr? {
-		var attr: __OS_dispatch_queue_attr?
+	private var attr: dispatch_queue_attr_t? {
+		var attr: dispatch_queue_attr_t?
 
 		if self.contains(.concurrent) {
 			attr = _swift_dispatch_queue_concurrent()
@@ -429,7 +429,3 @@ internal func _swift_dispatch_sync(_ queue: DispatchQueue, _ block: _DispatchBlo
 
 @_silgen_name("_swift_dispatch_apply_current")
 internal func _swift_dispatch_apply_current(_ iterations: Int, _ block: @convention(block) @noescape (Int) -> Void)
-
-#else
-  public func queue_me() { }
-#endif
