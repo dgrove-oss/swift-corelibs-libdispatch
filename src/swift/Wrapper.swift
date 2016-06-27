@@ -35,28 +35,48 @@ public class DispatchGroup : DispatchObject {
 }
 
 public class DispatchSemaphore : DispatchObject {
-	internal let __wrapped:dispatch_semaphore_t;
+	internal let __wrapped: dispatch_semaphore_t;
 
-	public init(value:Int) {
+	public init(value: Int) {
 		__wrapped = dispatch_semaphore_create(value)
 	}
 }
 
 public class DispatchIO : DispatchObject {
-#if false
+	internal let __wrapped:dispatch_io_t
+
+	internal init(__type: UInt, fd: Int32, queue: DispatchQueue,
+				  handler: (error: Int32) -> Void) {
+		__wrapped = dispatch_io_create_with_path(__type, fd, queue.__wrapped, handler)
+	}
+
+	internal init(__type: UInt, path: UnsafePointer<Int8>, oflag: Int32,
+				  mode: mode_t, queue: DispatchQueue, handler: (error: Int32) -> Void) {
+		__wrapped = dispatch_io_create_with_path(__type, path, oflag, mode, queue.__wrapped, handler)
+	}
+
+	internal init(__type: UInt, io: DispatchIO,
+				  queue: DispatchQueue, handler: (error: Int32) -> Void) {
+		__wrapped = dispatch_io_create_with_io(__type, io.__wrapped, queue.__wrapped, handler)
+	}
+
 	public func setLimit(highWater: Int) {
-	// FIXME: implement
+		dispatch_io_set_high_water(__wrapped, lowWater)
 	}
+
 	public func setLimit(lowWater: Int) {
-	// FIXME: implement
+		dispatch_io_set_low_water(__wrapped, lowWater)
 	}
-#endif
+
+	public func barrier(execute: () -> ()) {
+		dispatch_io_barrier(self.__wrapped, execute)
+	}
 }
 
 public class DispatchQueue : DispatchObject {
 	internal let __wrapped:dispatch_queue_t;
 
-	internal init(__label:String, attr:DispatchQueueAttributes) {
+	internal init(__label: String, attr: DispatchQueueAttributes) {
 		__wrapped = dispatch_queue_create(__label, attr)
 	}
 }

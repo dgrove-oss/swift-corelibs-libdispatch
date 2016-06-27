@@ -38,7 +38,7 @@ public struct DispatchData : RandomAccessCollection {
 		}
 	}
 
-	private var __wrapped: dispatch_data_t
+	internal var __wrapped: dispatch_data_t
 
 	/// Initialize a `Data` with copied memory content.
 	///
