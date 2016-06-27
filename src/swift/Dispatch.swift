@@ -96,7 +96,7 @@ public struct DispatchQoS : Equatable {
 		case unspecified
 
 		@available(OSX 10.10, iOS 8.0, *)
-		internal init?(qosClass: dispatch_qos_class_t) {
+		internal init?(qosClass: _OSQoSClass) {
 			switch qosClass {
 			case .QOS_CLASS_BACKGROUND: self = .background
 			case .QOS_CLASS_UTILITY: self = .utility
@@ -109,7 +109,7 @@ public struct DispatchQoS : Equatable {
 		}
 
 		@available(OSX 10.10, iOS 8.0, *)
-		internal var rawValue: dispatch_qos_class_t {
+		internal var rawValue: _OSQoSClass {
 			switch self {
 			case .background: return .QOS_CLASS_BACKGROUND
 			case .utility: return .QOS_CLASS_UTILITY

@@ -59,30 +59,30 @@ public struct DispatchQueueAttributes : OptionSet {
 		}
 		if #available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *) {
 			if self.contains(.initiallyInactive) {
-				attr = __dispatch_queue_attr_make_initially_inactive(attr)
+				attr = dispatch_queue_attr_make_initially_inactive(attr)
 			}
 			if self.contains(.autoreleaseWorkItem) {
 				// DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM
-				attr = __dispatch_queue_attr_make_with_autorelease_frequency(attr, __dispatch_autorelease_frequency_t(1))
+				attr = dispatch_queue_attr_make_with_autorelease_frequency(attr, dispatch_autorelease_frequency_t(1))
 			} else if self.contains(.autoreleaseInherit) {
 				// DISPATCH_AUTORELEASE_FREQUENCY_INHERIT
-				attr = __dispatch_queue_attr_make_with_autorelease_frequency(attr, __dispatch_autorelease_frequency_t(0))
+				attr = dispatch_queue_attr_make_with_autorelease_frequency(attr, dispatch_autorelease_frequency_t(0))
 			} else if self.contains(.autoreleaseNever) {
 				// DISPATCH_AUTORELEASE_FREQUENCY_NEVER
-				attr = __dispatch_queue_attr_make_with_autorelease_frequency(attr, __dispatch_autorelease_frequency_t(2))
+				attr = dispatch_queue_attr_make_with_autorelease_frequency(attr, dispatch_autorelease_frequency_t(2))
 			}
 		}
 		if #available(OSX 10.10, iOS 8.0, *) {
 			if self.contains(.qosUserInteractive) {
-				attr = __dispatch_queue_attr_make_with_qos_class(attr, QOS_CLASS_USER_INTERACTIVE, 0)
+				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_USER_INTERACTIVE.rawValue, 0)
 			} else if self.contains(.qosUserInitiated) {
-				attr = __dispatch_queue_attr_make_with_qos_class(attr, QOS_CLASS_USER_INITIATED, 0)
+				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_USER_INITIATED.rawValue, 0)
 			} else if self.contains(.qosDefault) {
-				attr = __dispatch_queue_attr_make_with_qos_class(attr, QOS_CLASS_DEFAULT, 0)
+				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_DEFAULT.rawValue, 0)
 			} else if self.contains(.qosUtility) {
-				attr = __dispatch_queue_attr_make_with_qos_class(attr, QOS_CLASS_UTILITY, 0)
+				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_UTILITY.rawValue, 0)
 			} else if self.contains(.qosBackground) {
-				attr = __dispatch_queue_attr_make_with_qos_class(attr, QOS_CLASS_BACKGROUND, 0)
+				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_BACKGROUND.rawValue, 0)
 			}
 		}
 		return attr
@@ -145,11 +145,11 @@ public extension DispatchQueue {
 
 		internal var _translatedValue: Int {
 			if #available(OSX 10.10, iOS 8.0, *) {
-				if self.contains(.qosUserInteractive) { return Int(QOS_CLASS_USER_INTERACTIVE.rawValue) }
-				else if self.contains(.qosUserInitiated) { return Int(QOS_CLASS_USER_INITIATED.rawValue) }
-				else if self.contains(.qosDefault) { return Int(QOS_CLASS_DEFAULT.rawValue) }
-				else if self.contains(.qosUtility) { return Int(QOS_CLASS_UTILITY.rawValue) }
-				else { return Int(QOS_CLASS_BACKGROUND.rawValue) }
+				if self.contains(.qosUserInteractive) { return Int(_OSQoSClass.QOS_CLASS_USER_INTERACTIVE.rawValue) }
+				else if self.contains(.qosUserInitiated) { return Int(_OSQoSClass.QOS_CLASS_USER_INITIATED.rawValue) }
+				else if self.contains(.qosDefault) { return Int(_OSQoSClass.QOS_CLASS_DEFAULT.rawValue) }
+				else if self.contains(.qosUtility) { return Int(_OSQoSClass.QOS_CLASS_UTILITY.rawValue) }
+				else { return Int(_OSQoSClass.QOS_CLASS_BACKGROUND.rawValue) }
 			}
 			if self.contains(._priorityHigh) { return 2 } // DISPATCH_QUEUE_PRIORITY_HIGH
 			else if self.contains(._priorityDefault) { return 0 } // DISPATCH_QUEUE_PRIORITY_DEFAULT
@@ -168,12 +168,13 @@ public extension DispatchQueue {
 	}
 
 	public class func global(attributes: GlobalAttributes = []) -> DispatchQueue {
-		return __dispatch_get_global_queue(attributes._translatedValue, 0)
+		// SubOptimal?  Should we be caching these global DispatchQueue objects?
+		return DispatchQueue(queue:dispatch_get_global_queue(attributes._translatedValue, 0))
 	}
 
 	public class func getSpecific<T>(key: DispatchSpecificKey<T>) -> T? {
 		let k = Unmanaged.passUnretained(key).toOpaque()
-		if let p = __dispatch_get_specific(k) {
+		if let p = dispatch_get_specific(k) {
 			let v = Unmanaged<_DispatchSpecificValue<T>>
 				.fromOpaque(p)
 				.takeUnretainedValue()
@@ -196,14 +197,16 @@ public extension DispatchQueue {
 	}
 
 	public var label: String {
-		return String(validatingUTF8: __dispatch_queue_get_label(self))!
+		return String(validatingUTF8: dispatch_queue_get_label(self.__wrapped))!
 	}
 
 	@available(OSX 10.10, iOS 8.0, *)
 	public func sync(execute workItem: DispatchWorkItem) {
-		// _swift_dispatch_sync preserves the @convention(block) for
-		// work item blocks.
-		_swift_dispatch_sync(self, workItem._block)
+		dispatch_sync(self.__wrapped, workItem._block)
+	}
+
+	internal func sync(execute workItem: @noescape ()->()) {
+		dispatch_sync(self.__wrapped, workItem)
 	}
 
 	@available(OSX 10.10, iOS 8.0, *)
@@ -211,37 +214,37 @@ public extension DispatchQueue {
 		// _swift_dispatch_{group,}_async preserves the @convention(block) 
 		// for work item blocks.
 		if let g = workItem._group {
-			_swift_dispatch_group_async(g, self, workItem._block)
+			dispatch_group_async(g.__wrapped, self.__wrapped, workItem._block)
 		} else {
-			_swift_dispatch_async(self, workItem._block)
+			dispatch_async(self.__wrapped, workItem._block)
 		}
 	}
 
 	public func async(group: DispatchGroup? = nil, qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], execute work: @convention(block) () -> Void) {
 		if group == nil && qos == .unspecified && flags.isEmpty {
 			// Fast-path route for the most common API usage
-			__dispatch_async(self, work)
+			dispatch_async(self.__wrapped, work)
 			return
 		}
 
 		if #available(OSX 10.10, iOS 8.0, *), (qos != .unspecified || !flags.isEmpty) {
 			let workItem = DispatchWorkItem(qos: qos, flags: flags, block: work)
 			if let g = group {
-				_swift_dispatch_group_async(g, self, workItem._block)
+				dispatch_group_async(g.__wrapped, self.__wrapped, workItem._block)
 			} else {
-				_swift_dispatch_async(self, workItem._block)
+				dispatch_async(self.__wrapped, workItem._block)
 			}
 		} else {
 			if let g = group {
-				__dispatch_group_async(g, self, work)
+				dispatch_group_async(g.__wrapped, self.__wrapped, work)
 			} else {
-				__dispatch_async(self, work)
+				dispatch_async(self.__wrapped, work)
 			}
 		}
 	}
 
 	private func _syncBarrier(block: @noescape () -> ()) {
-		__dispatch_barrier_sync(self, block)
+		dispatch_barrier_sync(self.__wrapped, block)
 	}
 
 	private func _syncHelper<T>(
@@ -306,41 +309,41 @@ public extension DispatchQueue {
 	public func after(when: DispatchTime, qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], execute work: @convention(block) () -> Void) {
 		if #available(OSX 10.10, iOS 8.0, *), qos != .unspecified || !flags.isEmpty {
 			let item = DispatchWorkItem(qos: qos, flags: flags, block: work)
-			__dispatch_after(when.rawValue, self, item._block)
+			dispatch_after(when.rawValue, self.__wrapped, item._block)
 		} else {
-			__dispatch_after(when.rawValue, self, work)
+			dispatch_after(when.rawValue, self.__wrapped, work)
 		}
 	}
 
 	@available(OSX 10.10, iOS 8.0, *)
 	public func after(when: DispatchTime, execute: DispatchWorkItem) {
-		__dispatch_after(when.rawValue, self, execute._block)
+		dispatch_after(when.rawValue, self.__wrapped, execute._block)
 	}
 
 	public func after(walltime when: DispatchWallTime, qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], execute work: @convention(block) () -> Void) {
 		if #available(OSX 10.10, iOS 8.0, *), qos != .unspecified || !flags.isEmpty {
 			let item = DispatchWorkItem(qos: qos, flags: flags, block: work)
-			__dispatch_after(when.rawValue, self, item._block)
+			dispatch_after(when.rawValue, self.__wrapped, item._block)
 		} else {
-			__dispatch_after(when.rawValue, self, work)
+			dispatch_after(when.rawValue, self.__wrapped, work)
 		}
 	}
 
 	@available(OSX 10.10, iOS 8.0, *)
 	public func after(walltime when: DispatchWallTime, execute: DispatchWorkItem) {
-		__dispatch_after(when.rawValue, self, execute._block)
+		dispatch_after(when.rawValue, self.__wrapped, execute._block)
 	}
 
 	@available(OSX 10.10, iOS 8.0, *)
 	public var qos: DispatchQoS {
 		var relPri: Int32 = 0
-		let cls = DispatchQoS.QoSClass(qosClass: __dispatch_queue_get_qos_class(self, &relPri))!
+		let cls = DispatchQoS.QoSClass(qosClass: _OSQoSClass(qosClass: dispatch_queue_get_qos_class(self.__wrapped, &relPri))!)!
 		return DispatchQoS(qosClass: cls, relativePriority: Int(relPri))
 	}
 
 	public func getSpecific<T>(key: DispatchSpecificKey<T>) -> T? {
 		let k = Unmanaged.passUnretained(key).toOpaque()
-		if let p = __dispatch_queue_get_specific(self, k) {
+		if let p = dispatch_queue_get_specific(self.__wrapped, k) {
 			let v = Unmanaged<_DispatchSpecificValue<T>>
 				.fromOpaque(p)
 				.takeUnretainedValue()
@@ -353,7 +356,7 @@ public extension DispatchQueue {
 		let v = _DispatchSpecificValue(value: value)
 		let k = Unmanaged.passUnretained(key).toOpaque()
 		let p = Unmanaged.passRetained(v).toOpaque()
-		__dispatch_queue_set_specific(self, k, p, _destructDispatchSpecificValue)
+		dispatch_queue_set_specific(self.__wrapped, k, p, _destructDispatchSpecificValue)
 	}
 }
 
@@ -418,14 +421,6 @@ internal func _swift_dispatch_get_main_queue() -> DispatchQueue
 @_silgen_name("_swift_dispatch_apply_current_root_queue")
 internal func _swift_dispatch_apply_current_root_queue() -> DispatchQueue
 
-@_silgen_name("_swift_dispatch_async")
-internal func _swift_dispatch_async(_ queue: DispatchQueue, _ block: _DispatchBlock)
-
-@_silgen_name("_swift_dispatch_group_async")
-internal func _swift_dispatch_group_async(_ group: DispatchGroup, _ queue: DispatchQueue, _ block: _DispatchBlock)
-
-@_silgen_name("_swift_dispatch_sync")
-internal func _swift_dispatch_sync(_ queue: DispatchQueue, _ block: _DispatchBlock)
-
 @_silgen_name("_swift_dispatch_apply_current")
 internal func _swift_dispatch_apply_current(_ iterations: Int, _ block: @convention(block) @noescape (Int) -> Void)
+	

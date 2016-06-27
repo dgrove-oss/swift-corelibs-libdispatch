@@ -76,8 +76,20 @@ public class DispatchIO : DispatchObject {
 public class DispatchQueue : DispatchObject {
 	internal let __wrapped:dispatch_queue_t;
 
-	internal init(__label: String, attr: DispatchQueueAttributes) {
+	internal init(__label: String, attr: dispatch_queue_attr_t?) {
 		__wrapped = dispatch_queue_create(__label, attr)
+	}
+
+	internal init(__label: String, attr:  dispatch_queue_attr_t?, queue: DispatchQueue?) {
+		__wrapped = dispatch_queue_create_with_target(__label, attr, target.__wrapped)
+	}
+
+	internal init(queue:dispatch_queue_t) {
+		__wrapped = queue
+	}
+
+	public func setTarget(queue:DispatchQueue) {
+		dispatch_set_target_queue(self.__wrapped, queue.__wrapped)
 	}
 }
 
@@ -122,11 +134,23 @@ public class DispatchSourceUserDataOr : DispatchSource {
 }
 
 
-internal enum dispatch_qos_class_t : UInt  {
+internal enum _OSQoSClass : UInt32  {
 	case QOS_CLASS_USER_INTERACTIVE = 0x21
 	case QOS_CLASS_USER_INITIATED = 0x19
 	case QOS_CLASS_DEFAULT = 0x15
 	case QOS_CLASS_UTILITY = 0x11
 	case QOS_CLASS_BACKGROUND = 0x09
 	case QOS_CLASS_UNSPECIFIED = 0x00
+
+	internal init?(qosClass:dispatch_qos_class_t) {
+		switch qosClass {
+		case 0x21: self = .QOS_CLASS_USER_INTERACTIVE
+		case 0x19: self = .QOS_CLASS_USER_INITIATED
+		case 0x15: self = .QOS_CLASS_DEFAULT
+		case 0x11: self = QOS_CLASS_UTILITY
+		case 0x09: self = QOS_CLASS_BACKGROUND = 0x09
+		case 0x00: self = QOS_CLASS_UNSPECIFIED
+		default: return nil
+		}
+	}
 }
