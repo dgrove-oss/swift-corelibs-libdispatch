@@ -15,6 +15,25 @@ import CDispatch
 /// Mirrors Objective-C DispatchObject class hierarchy
 
 public class DispatchObject {
+	public func setTarget(queue:DispatchQueue) {
+		// FIXME: dispatch_set_target_queue(self:queue:)
+		assert(false)
+	}
+
+	public func activate() {
+		// FIXME: dispatch_activate(self:)
+		assert(false)
+	}
+
+	public func suspend() {
+		// FIXME: dispatch_suspend(self:)
+		assert(false)
+	}
+
+	public func resume() {
+		// FIXME: dispatch_resume(self:)
+		assert(false)
+	}		
 }
 
 
@@ -60,16 +79,18 @@ public class DispatchIO : DispatchObject {
 		__wrapped = dispatch_io_create_with_io(__type, io.__wrapped, queue.__wrapped, handler)
 	}
 
+	public func barrier(execute: () -> ()) {
+		dispatch_io_barrier(self.__wrapped, execute)
+	}
+
+	// FIXME: getter:DispatchIO.fileDescriptor(self:) ==> dispatch_io_get_descriptor
+
 	public func setLimit(highWater: Int) {
 		dispatch_io_set_high_water(__wrapped, highWater)
 	}
 
 	public func setLimit(lowWater: Int) {
 		dispatch_io_set_low_water(__wrapped, lowWater)
-	}
-
-	public func barrier(execute: () -> ()) {
-		dispatch_io_barrier(self.__wrapped, execute)
 	}
 }
 
@@ -88,8 +109,8 @@ public class DispatchQueue : DispatchObject {
 		__wrapped = queue
 	}
 
-	public func setTarget(queue:DispatchQueue) {
-		dispatch_set_target_queue(_dispatch_pun_queue_to_object(self.__wrapped), queue.__wrapped)
+	public func sync(execute workItem: @noescape ()->()) {
+		dispatch_sync(self.__wrapped, workItem)
 	}
 }
 

@@ -205,10 +205,6 @@ public extension DispatchQueue {
 		dispatch_sync(self.__wrapped, workItem._block)
 	}
 
-	internal func sync(execute workItem: @noescape ()->()) {
-		dispatch_sync(self.__wrapped, workItem)
-	}
-
 	@available(OSX 10.10, iOS 8.0, *)
 	public func async(execute workItem: DispatchWorkItem) {
 		// _swift_dispatch_{group,}_async preserves the @convention(block) 
