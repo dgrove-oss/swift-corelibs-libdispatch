@@ -19,6 +19,7 @@ public struct DispatchData : RandomAccessCollection {
 
 	public static let empty: DispatchData = DispatchData(data: _swift_dispatch_data_empty())
 
+#if false /* FIXME: dragging in _TMBO (Objective-C) */
 	public enum Deallocator {
 		/// Use `free`
 		case free
@@ -46,7 +47,7 @@ public struct DispatchData : RandomAccessCollection {
 #endif
 		}
 	}
-
+#endif
 	internal var __wrapped: dispatch_data_t
 
 	/// Initialize a `Data` with copied memory content.
@@ -57,7 +58,7 @@ public struct DispatchData : RandomAccessCollection {
 		__wrapped = dispatch_data_create(
 			buffer.baseAddress!, buffer.count, nil, _dispatch_data_destructor_default())
 	}
-
+#if false /* FIXME: dragging in _TMBO (Objective-C) */
 	/// Initialize a `Data` without copying the bytes.
 	///
 	/// - parameter bytes: A pointer to the bytes.
@@ -68,7 +69,7 @@ public struct DispatchData : RandomAccessCollection {
 
 		__wrapped = dispatch_data_create(bytes.baseAddress!, bytes.count, q?.__wrapped, b)
 	}
-
+#endif
 	internal init(data: dispatch_data_t) {
 		__wrapped = data
 	}
