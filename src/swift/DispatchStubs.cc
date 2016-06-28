@@ -161,11 +161,18 @@ _swift_dispatch_sync(dispatch_queue_t queue, dispatch_block_t block) {
   dispatch_sync(queue, block);
 }
 
-SWIFT_CC(swift) DISPATCH_RUNTIME_STDLIB_INTERFACE
-extern "C" dispatch_object_t
-_dispatch_pun_queue_to_object(dispatch_queue_t queue) {
-  return (dispatch_object_t)queue;
+#define PUN(t)                                                                \
+SWIFT_CC(swift) DISPATCH_RUNTIME_STDLIB_INTERFACE                             \
+extern "C" dispatch_object_t                                                  \
+_dispatch_pun_##t##_to_object(dispatch_##t##_t obj) {                         \
+  return (dispatch_object_t)obj;                                              \
 }
+
+PUN(group)
+PUN(semaphore)
+PUN(io)
+PUN(queue)
+PUN(source)
 
 // DISPATCH_RUNTIME_STDLIB_INTERFACE
 // extern "C" dispatch_queue_t

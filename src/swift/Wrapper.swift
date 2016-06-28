@@ -12,33 +12,40 @@
 
 import CDispatch
 
-/// Mirrors Objective-C DispatchObject class hierarchy
+// This file contains declarations that are provided by the
+// importer via Dispatch.apinote when the platform has Objective-C support
 
 public class DispatchObject {
+	// TODO: add deinit method to invoke dispatch_release on wrapped()
+
+    internal func wrapped() -> dispatch_object_t {
+	    assert(false, "should be override in subclass")
+	}
+
 	public func setTarget(queue:DispatchQueue) {
-		// FIXME: dispatch_set_target_queue(self:queue:)
-		assert(false)
+		dispatch_set_target_queue(wrapped(), queue.__wrapped)
 	}
 
 	public func activate() {
-		// FIXME: dispatch_activate(self:)
-		assert(false)
+		dispatch_activate(wrapped())
 	}
 
 	public func suspend() {
-		// FIXME: dispatch_suspend(self:)
-		assert(false)
+		dispatch_suspend(wrapped())
 	}
 
 	public func resume() {
-		// FIXME: dispatch_resume(self:)
-		assert(false)
+		dispatch_resume(wrapped())
 	}		
 }
 
 
 public class DispatchGroup : DispatchObject {
 	internal let __wrapped:dispatch_group_t;
+
+	internal override func wrapped() -> dispatch_object_t {
+		return _dispatch_pun_group_to_object(__wrapped)
+	}
 
 	public override init() {
 		__wrapped = dispatch_group_create()
@@ -56,6 +63,10 @@ public class DispatchGroup : DispatchObject {
 public class DispatchSemaphore : DispatchObject {
 	internal let __wrapped: dispatch_semaphore_t;
 
+	internal override func wrapped() -> dispatch_object_t {
+		return _dispatch_pun_semaphore_to_object(__wrapped)
+	}
+
 	public init(value: Int) {
 		__wrapped = dispatch_semaphore_create(value)
 	}
@@ -63,6 +74,10 @@ public class DispatchSemaphore : DispatchObject {
 
 public class DispatchIO : DispatchObject {
 	internal let __wrapped:dispatch_io_t
+
+	internal override func wrapped() -> dispatch_object_t {
+		return _dispatch_pun_io_to_object(__wrapped)
+	}
 
 	internal init(__type: UInt, fd: Int32, queue: DispatchQueue,
 				  handler: (error: Int32) -> Void) {
@@ -97,6 +112,10 @@ public class DispatchIO : DispatchObject {
 public class DispatchQueue : DispatchObject {
 	internal let __wrapped:dispatch_queue_t;
 
+	internal override func wrapped() -> dispatch_object_t {
+		return _dispatch_pun_queue_to_object(__wrapped)
+	}
+
 	internal init(__label: String, attr: dispatch_queue_attr_t?) {
 		__wrapped = dispatch_queue_create(__label, attr)
 	}
@@ -120,6 +139,10 @@ public class DispatchSource : DispatchObject,
 	DispatchSourceUserDataAdd, DispatchSourceUserDataOr,
 	DispatchSourceFileSystemObject, DispatchSourceWrite {
 	internal let __wrapped:dispatch_source_t
+
+	internal override func wrapped() -> dispatch_object_t {
+		return _dispatch_pun_source_to_object(__wrapped)
+	}
 
 	internal init(source:dispatch_source_t) {
 		__wrapped = source
@@ -256,5 +279,17 @@ internal enum _OSQoSClass : UInt32  {
 }
 
 
+@_silgen_name("_dispatch_pun_group_to_object")
+internal func _dispatch_pun_group_to_object(_ group:dispatch_group_t) -> dispatch_object_t
+
+@_silgen_name("_dispatch_pun_semaphore_to_object")
+internal func _dispatch_pun_semaphore_to_object(_ semaphore:dispatch_semaphore_t) -> dispatch_object_t
+
+@_silgen_name("_dispatch_pun_io_to_object")
+internal func _dispatch_pun_io_to_object(_ io:dispatch_io_t) -> dispatch_object_t
+
 @_silgen_name("_dispatch_pun_queue_to_object")
 internal func _dispatch_pun_queue_to_object(_ queue:dispatch_queue_t) -> dispatch_object_t
+
+@_silgen_name("_dispatch_pun_source_to_object")
+internal func _dispatch_pun_source_to_object(_ source:dispatch_source_t) -> dispatch_object_t
