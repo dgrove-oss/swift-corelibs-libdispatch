@@ -127,7 +127,7 @@ public class DispatchSource : DispatchObject,
 }
 
 public protocol DispatchSourceType {
-#if false // crashes compiler
+#if false // crashes the swift compiler
   typealias DispatchSourceHandler = @convention(block) () -> Void
 
   func setEventHandler(handler: DispatchSourceHandler?)
@@ -135,7 +135,7 @@ public protocol DispatchSourceType {
   func setCancelHandler(handler: DispatchSourceHandler?)
 
   func setRegistrationHandler(handler: DispatchSourceHandler?)
-
+#endif
   func cancel()
 
   func resume()
@@ -149,7 +149,6 @@ public protocol DispatchSourceType {
   var data: UInt { get }
 
   var isCancelled: Bool { get }
-#endif
 }
 
 public protocol DispatchSourceUserDataAdd : DispatchSourceType {
