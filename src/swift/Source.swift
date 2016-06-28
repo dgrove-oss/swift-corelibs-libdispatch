@@ -264,35 +264,32 @@ public extension DispatchSourceProcess {
 }
 #endif
 
-#if false // crashes compiler
 public extension DispatchSourceTimer {
 	public func scheduleOneshot(deadline: DispatchTime, leeway: DispatchTimeInterval = .nanoseconds(0)) {
-		dispatch_source_set_timer(self as! DispatchSource, deadline.rawValue, ~0, UInt64(leeway.rawValue))
+		dispatch_source_set_timer((self as! DispatchSource).__wrapped, deadline.rawValue, ~0, UInt64(leeway.rawValue))
 	}
 
 	public func scheduleOneshot(wallDeadline: DispatchWallTime, leeway: DispatchTimeInterval = .nanoseconds(0)) {
-		dispatch_source_set_timer(self as! DispatchSource, wallDeadline.rawValue, ~0, UInt64(leeway.rawValue))
+		dispatch_source_set_timer((self as! DispatchSource).__wrapped, wallDeadline.rawValue, ~0, UInt64(leeway.rawValue))
 	}
 
 	public func scheduleRepeating(deadline: DispatchTime, interval: DispatchTimeInterval, leeway: DispatchTimeInterval = .nanoseconds(0)) {
-		dispatch_source_set_timer(self as! DispatchSource, deadline.rawValue, interval.rawValue, UInt64(leeway.rawValue))
+		dispatch_source_set_timer((self as! DispatchSource).__wrapped, deadline.rawValue, interval.rawValue, UInt64(leeway.rawValue))
 	}
 
 	public func scheduleRepeating(deadline: DispatchTime, interval: Double, leeway: DispatchTimeInterval = .nanoseconds(0)) {
-		dispatch_source_set_timer(self as! DispatchSource, deadline.rawValue, UInt64(interval * Double(NSEC_PER_SEC)), UInt64(leeway.rawValue))
+		dispatch_source_set_timer((self as! DispatchSource).__wrapped, deadline.rawValue, UInt64(interval * Double(NSEC_PER_SEC)), UInt64(leeway.rawValue))
 	}
 
 	public func scheduleRepeating(wallDeadline: DispatchWallTime, interval: DispatchTimeInterval, leeway: DispatchTimeInterval = .nanoseconds(0)) {
-		dispatch_source_set_timer(self as! DispatchSource, wallDeadline.rawValue, interval.rawValue, UInt64(leeway.rawValue))
+		dispatch_source_set_timer((self as! DispatchSource).__wrapped, wallDeadline.rawValue, interval.rawValue, UInt64(leeway.rawValue))
 	}
 
 	public func scheduleRepeating(wallDeadline: DispatchWallTime, interval: Double, leeway: DispatchTimeInterval = .nanoseconds(0)) {
-		dispatch_source_set_timer(self as! DispatchSource, wallDeadline.rawValue, UInt64(interval * Double(NSEC_PER_SEC)), UInt64(leeway.rawValue))
+		dispatch_source_set_timer((self as! DispatchSource).__wrapped, wallDeadline.rawValue, UInt64(interval * Double(NSEC_PER_SEC)), UInt64(leeway.rawValue))
 	}
 }
-#endif
 
-#if false // crashes compiler
 public extension DispatchSourceTimer {
 	@available(*, deprecated, renamed: "DispatchSourceTimer.scheduleOneshot(self:deadline:leeway:)")
 	public func setTimer(start: DispatchTime, leeway: DispatchTimeInterval = .nanoseconds(0)) {
@@ -320,11 +317,10 @@ public extension DispatchSourceTimer {
 	}
 
 	@available(*, deprecated, renamed: "DispatchSourceTimer.scheduleRepeating(self:wallDeadline:interval:leeway:)")
-	public func setTimer(walltime start: DispatchWalltime, interval: Double, leeway: DispatchTimeInterval = .nanoseconds(0)) {
+	public func setTimer(walltime start: DispatchWallTime, interval: Double, leeway: DispatchTimeInterval = .nanoseconds(0)) {
 		scheduleRepeating(wallDeadline: start, interval: interval, leeway: leeway)
 	}
 }
-#endif
 
 #if false // crashes compiler
 public extension DispatchSourceFileSystemObject {

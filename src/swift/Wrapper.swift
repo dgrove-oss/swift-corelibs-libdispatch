@@ -209,19 +209,17 @@ public protocol DispatchSourceSignal : DispatchSourceType {
 }
 
 public protocol DispatchSourceTimer : DispatchSourceType {
-#if false // crashes compiler
   func setTimer(start: DispatchTime, leeway: DispatchTimeInterval)
 
-  func setTimer(walltime start: DispatchWalltime, leeway: DispatchTimeInterval)
+  func setTimer(walltime start: DispatchWallTime, leeway: DispatchTimeInterval)
 
   func setTimer(start: DispatchTime, interval: DispatchTimeInterval, leeway: DispatchTimeInterval)
 
   func setTimer(start: DispatchTime, interval: Double, leeway: DispatchTimeInterval)
 
-  func setTimer(walltime start: DispatchWalltime, interval: DispatchTimeInterval, leeway: DispatchTimeInterva)
+  func setTimer(walltime start: DispatchWallTime, interval: DispatchTimeInterval, leeway: DispatchTimeInterval)
 
-  func setTimer(walltime start: DispatchWalltime, interval: Double, leeway: DispatchTimeInterval)
-#endif
+  func setTimer(walltime start: DispatchWallTime, interval: Double, leeway: DispatchTimeInterval)
 }
 
 public protocol DispatchSourceFileSystemObject : DispatchSourceType {
