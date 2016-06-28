@@ -12,7 +12,7 @@
 
 // Redeclarations of all SwiftPrivate functions with appropriate markup.
 
-#if false
+import CDispatch
 
 @available(*, unavailable, renamed:"DispatchQueue.init(label:attributes:target:)")
 public func dispatch_queue_create(_ label: UnsafePointer<Int8>?, _ attr: dispatch_queue_attr_t?) -> DispatchQueue
@@ -45,67 +45,67 @@ public func dispatch_io_create_with_io(_ type: UInt, _ io: DispatchIO, _ queue: 
 }
 
 @available(*, unavailable, renamed:"DispatchIO.read(fileDescriptor:length:queue:handler:)")
-public func dispatch_read(_ fd: Int32, _ length: Int, _ queue: DispatchQueue, _ handler: (__DispatchData, Int32) -> Void) 
+public func dispatch_read(_ fd: Int32, _ length: Int, _ queue: DispatchQueue, _ handler: (dispatch_data_t, Int32) -> Void) 
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchIO.read(self:offset:length:queue:ioHandler:)")
-func dispatch_io_read(_ channel: DispatchIO, _ offset: off_t, _ length: Int, _ queue: DispatchQueue, _ io_handler: (Bool, __DispatchData?, Int32) -> Void) 
+func dispatch_io_read(_ channel: DispatchIO, _ offset: off_t, _ length: Int, _ queue: DispatchQueue, _ io_handler: (Bool, dispatch_data_t?, Int32) -> Void) 
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchIO.write(self:offset:data:queue:ioHandler:)")
-func dispatch_io_write(_ channel: DispatchIO, _ offset: off_t, _ data: __DispatchData, _ queue: DispatchQueue, _ io_handler: (Bool, __DispatchData?, Int32) -> Void)
+func dispatch_io_write(_ channel: DispatchIO, _ offset: off_t, _ data: dispatch_data_t, _ queue: DispatchQueue, _ io_handler: (Bool, dispatch_data_t?, Int32) -> Void)
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchIO.write(fileDescriptor:data:queue:handler:)")
-func dispatch_write(_ fd: Int32, _ data: __DispatchData, _ queue: DispatchQueue, _ handler: (__DispatchData?, Int32) -> Void)
+func dispatch_write(_ fd: Int32, _ data: dispatch_data_t, _ queue: DispatchQueue, _ handler: (dispatch_data_t?, Int32) -> Void)
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchData.init(bytes:)")
-public func dispatch_data_create(_ buffer: UnsafePointer<Void>, _ size: Int, _ queue: DispatchQueue?, _ destructor: (() -> Void)?) -> __DispatchData
+public func dispatch_data_create(_ buffer: UnsafePointer<Void>, _ size: Int, _ queue: DispatchQueue?, _ destructor: (() -> Void)?) -> dispatch_data_t
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"getter:DispatchData.count(self:)")
-public func dispatch_data_get_size(_ data: __DispatchData) -> Int
+public func dispatch_data_get_size(_ data: dispatch_data_t) -> Int
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchData.withUnsafeBytes(self:body:)")
-public func dispatch_data_create_map(_ data: __DispatchData, _ buffer_ptr: UnsafeMutablePointer<UnsafePointer<Void>?>?, _ size_ptr: UnsafeMutablePointer<Int>?) -> __DispatchData
+public func dispatch_data_create_map(_ data: dispatch_data_t, _ buffer_ptr: UnsafeMutablePointer<UnsafePointer<Void>?>?, _ size_ptr: UnsafeMutablePointer<Int>?) -> dispatch_data_t
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchData.append(self:_:)")
-public func dispatch_data_create_concat(_ data1: __DispatchData, _ data2: __DispatchData) -> __DispatchData
+public func dispatch_data_create_concat(_ data1: dispatch_data_t, _ data2: dispatch_data_t) -> dispatch_data_t
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchData.subdata(self:in:)")
-public func dispatch_data_create_subrange(_ data: __DispatchData, _ offset: Int, _ length: Int) -> __DispatchData
+public func dispatch_data_create_subrange(_ data: dispatch_data_t, _ offset: Int, _ length: Int) -> dispatch_data_t
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchData.enumerateBytes(self:block:)")
-public func dispatch_data_apply(_ data: __DispatchData, _ applier: (__DispatchData, Int, UnsafePointer<Void>, Int) -> Bool) -> Bool
+public func dispatch_data_apply(_ data: dispatch_data_t, _ applier: (dispatch_data_t, Int, UnsafePointer<Void>, Int) -> Bool) -> Bool
 {
 	fatalError()
 }
 
 @available(*, unavailable, renamed:"DispatchData.region(self:location:)")
-public func dispatch_data_copy_region(_ data: __DispatchData, _ location: Int, _ offset_ptr: UnsafeMutablePointer<Int>) -> __DispatchData
+public func dispatch_data_copy_region(_ data: dispatch_data_t, _ location: Int, _ offset_ptr: UnsafeMutablePointer<Int>) -> dispatch_data_t
 {
 	fatalError()
 }
@@ -472,7 +472,3 @@ public var DISPATCH_TIME_NOW: Int {
 public var DISPATCH_TIME_FOREVER: Int {
   fatalError()
 }
-
-#else
-  public func private_me() { }
-#endif

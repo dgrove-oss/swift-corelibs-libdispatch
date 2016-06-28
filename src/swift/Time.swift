@@ -20,7 +20,7 @@ public struct DispatchTime {
 	public let rawValue: dispatch_time_t
 
 	public static func now() -> DispatchTime {
-		let t = dispatch_time(0, 0)
+		let t = CDispatch.dispatch_time(0, 0)
 		return DispatchTime(rawValue: t)
 	}
 
@@ -35,7 +35,7 @@ public struct DispatchWallTime {
 	public let rawValue: dispatch_time_t
 
 	public static func now() -> DispatchWallTime {
-		return DispatchWallTime(rawValue: dispatch_walltime(nil, 0))
+		return DispatchWallTime(rawValue: CDispatch.dispatch_walltime(nil, 0))
 	}
 
 	public static let distantFuture = DispatchWallTime(rawValue: ~0)
@@ -46,7 +46,7 @@ public struct DispatchWallTime {
 
 	public init(time: timespec) {
 		var t = time
-		self.rawValue = dispatch_walltime(&t, 0)
+		self.rawValue = CDispatch.dispatch_walltime(&t, 0)
 	}
 }
 
@@ -70,41 +70,41 @@ public enum DispatchTimeInterval {
 }
 
 public func +(time: DispatchTime, interval: DispatchTimeInterval) -> DispatchTime {
-	let t = dispatch_time(time.rawValue, Int64(interval.rawValue))
+	let t = CDispatch.dispatch_time(time.rawValue, Int64(interval.rawValue))
 	return DispatchTime(rawValue: t)
 }
 
 public func -(time: DispatchTime, interval: DispatchTimeInterval) -> DispatchTime {
-	let t = dispatch_time(time.rawValue, -Int64(interval.rawValue))
+	let t = CDispatch.dispatch_time(time.rawValue, -Int64(interval.rawValue))
 	return DispatchTime(rawValue: t)
 }
 
 public func +(time: DispatchTime, seconds: Double) -> DispatchTime {
-	let t = dispatch_time(time.rawValue, Int64(seconds * Double(NSEC_PER_SEC)))
+	let t = CDispatch.dispatch_time(time.rawValue, Int64(seconds * Double(NSEC_PER_SEC)))
 	return DispatchTime(rawValue: t)
 }
 
 public func -(time: DispatchTime, seconds: Double) -> DispatchTime {
-	let t = dispatch_time(time.rawValue, Int64(-seconds * Double(NSEC_PER_SEC)))
+	let t = CDispatch.dispatch_time(time.rawValue, Int64(-seconds * Double(NSEC_PER_SEC)))
 	return DispatchTime(rawValue: t)
 }
 
 public func +(time: DispatchWallTime, interval: DispatchTimeInterval) -> DispatchWallTime {
-	let t = dispatch_time(time.rawValue, Int64(interval.rawValue))
+	let t = CDispatch.dispatch_time(time.rawValue, Int64(interval.rawValue))
 	return DispatchWallTime(rawValue: t)
 }
 
 public func -(time: DispatchWallTime, interval: DispatchTimeInterval) -> DispatchWallTime {
-	let t = dispatch_time(time.rawValue, -Int64(interval.rawValue))
+	let t = CDispatch.dispatch_time(time.rawValue, -Int64(interval.rawValue))
 	return DispatchWallTime(rawValue: t)
 }
 
 public func +(time: DispatchWallTime, seconds: Double) -> DispatchWallTime {
-	let t = dispatch_time(time.rawValue, Int64(seconds * Double(NSEC_PER_SEC)))
+	let t = CDispatch.dispatch_time(time.rawValue, Int64(seconds * Double(NSEC_PER_SEC)))
 	return DispatchWallTime(rawValue: t)
 }
 
 public func -(time: DispatchWallTime, seconds: Double) -> DispatchWallTime {
-	let t = dispatch_time(time.rawValue, Int64(-seconds * Double(NSEC_PER_SEC)))
+	let t = CDispatch.dispatch_time(time.rawValue, Int64(-seconds * Double(NSEC_PER_SEC)))
 	return DispatchWallTime(rawValue: t)
 }

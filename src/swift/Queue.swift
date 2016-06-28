@@ -59,30 +59,30 @@ public struct DispatchQueueAttributes : OptionSet {
 		}
 		if #available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *) {
 			if self.contains(.initiallyInactive) {
-				attr = dispatch_queue_attr_make_initially_inactive(attr)
+				attr = CDispatch.dispatch_queue_attr_make_initially_inactive(attr)
 			}
 			if self.contains(.autoreleaseWorkItem) {
 				// DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM
-				attr = dispatch_queue_attr_make_with_autorelease_frequency(attr, dispatch_autorelease_frequency_t(1))
+				attr = CDispatch.dispatch_queue_attr_make_with_autorelease_frequency(attr, dispatch_autorelease_frequency_t(1))
 			} else if self.contains(.autoreleaseInherit) {
 				// DISPATCH_AUTORELEASE_FREQUENCY_INHERIT
-				attr = dispatch_queue_attr_make_with_autorelease_frequency(attr, dispatch_autorelease_frequency_t(0))
+				attr = CDispatch.dispatch_queue_attr_make_with_autorelease_frequency(attr, dispatch_autorelease_frequency_t(0))
 			} else if self.contains(.autoreleaseNever) {
 				// DISPATCH_AUTORELEASE_FREQUENCY_NEVER
-				attr = dispatch_queue_attr_make_with_autorelease_frequency(attr, dispatch_autorelease_frequency_t(2))
+				attr = CDispatch.dispatch_queue_attr_make_with_autorelease_frequency(attr, dispatch_autorelease_frequency_t(2))
 			}
 		}
 		if #available(OSX 10.10, iOS 8.0, *) {
 			if self.contains(.qosUserInteractive) {
-				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_USER_INTERACTIVE.rawValue, 0)
+				attr = CDispatch.dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_USER_INTERACTIVE.rawValue, 0)
 			} else if self.contains(.qosUserInitiated) {
-				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_USER_INITIATED.rawValue, 0)
+				attr = CDispatch.dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_USER_INITIATED.rawValue, 0)
 			} else if self.contains(.qosDefault) {
-				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_DEFAULT.rawValue, 0)
+				attr = CDispatch.dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_DEFAULT.rawValue, 0)
 			} else if self.contains(.qosUtility) {
-				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_UTILITY.rawValue, 0)
+				attr = CDispatch.dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_UTILITY.rawValue, 0)
 			} else if self.contains(.qosBackground) {
-				attr = dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_BACKGROUND.rawValue, 0)
+				attr = CDispatch.dispatch_queue_attr_make_with_qos_class(attr, _OSQoSClass.QOS_CLASS_BACKGROUND.rawValue, 0)
 			}
 		}
 		return attr
@@ -174,7 +174,7 @@ public extension DispatchQueue {
 
 	public class func getSpecific<T>(key: DispatchSpecificKey<T>) -> T? {
 		let k = Unmanaged.passUnretained(key).toOpaque()
-		if let p = dispatch_get_specific(k) {
+		if let p = CDispatch.dispatch_get_specific(k) {
 			let v = Unmanaged<_DispatchSpecificValue<T>>
 				.fromOpaque(p)
 				.takeUnretainedValue()

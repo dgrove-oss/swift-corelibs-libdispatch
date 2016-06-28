@@ -75,7 +75,7 @@ public struct DispatchData : RandomAccessCollection {
 	}
 
 	public var count: Int {
-		return dispatch_data_get_size(__wrapped)
+		return CDispatch.dispatch_data_get_size(__wrapped)
 	}
 
 	public func withUnsafeBytes<Result, ContentType>(
@@ -83,7 +83,7 @@ public struct DispatchData : RandomAccessCollection {
 	{
 		var ptr: UnsafePointer<Void>? = nil
 		var size = 0;
-		let data = dispatch_data_create_map(__wrapped, &ptr, &size)
+		let data = CDispatch.dispatch_data_create_map(__wrapped, &ptr, &size)
 		defer { _fixLifetime(data) }
 		return try body(UnsafePointer<ContentType>(ptr!))
 	}
@@ -112,7 +112,7 @@ public struct DispatchData : RandomAccessCollection {
 	///
 	/// - parameter data: The data to append to this data.
 	public mutating func append(_ other: DispatchData) {
-		let data = dispatch_data_create_concat(__wrapped, other.__wrapped)
+		let data = CDispatch.dispatch_data_create_concat(__wrapped, other.__wrapped)
 		__wrapped = data
 	}
 
@@ -125,7 +125,7 @@ public struct DispatchData : RandomAccessCollection {
 
 	private func _copyBytesHelper(to pointer: UnsafeMutablePointer<UInt8>, from range: CountableRange<Index>) {
 		var copiedCount = 0
-		dispatch_data_apply(__wrapped) { (data: dispatch_data_t, offset: Int, ptr: UnsafePointer<Void>, size: Int) in
+		CDispatch.dispatch_data_apply(__wrapped) { (data: dispatch_data_t, offset: Int, ptr: UnsafePointer<Void>, size: Int) in
 			let limit = Swift.min((range.endIndex - range.startIndex) - copiedCount, size)
 			memcpy(pointer + copiedCount, ptr, limit)
 			copiedCount += limit
@@ -186,11 +186,11 @@ public struct DispatchData : RandomAccessCollection {
 	/// Sets or returns the byte at the specified index.
 	public subscript(index: Index) -> UInt8 {
 		var offset = 0
-		let subdata = dispatch_data_copy_region(__wrapped, index, &offset)
+		let subdata = CDispatch.dispatch_data_copy_region(__wrapped, index, &offset)
 
 		var ptr: UnsafePointer<Void>? = nil
 		var size = 0
-		let map = dispatch_data_create_map(subdata, &ptr, &size)
+		let map = CDispatch.dispatch_data_create_map(subdata, &ptr, &size)
 		defer { _fixLifetime(map) }
 
 		let pptr = UnsafePointer<UInt8>(ptr!)
@@ -205,14 +205,14 @@ public struct DispatchData : RandomAccessCollection {
 	///
 	/// - parameter range: The range to copy.
 	public func subdata(in range: CountableRange<Index>) -> DispatchData {
-		let subrange = dispatch_data_create_subrange(
+		let subrange = CDispatch.dispatch_data_create_subrange(
 			__wrapped, range.startIndex, range.endIndex - range.startIndex)
 		return DispatchData(data: subrange)
 	}
 
 	public func region(location: Int) -> (data: DispatchData, offset: Int) {
 		var offset: Int = 0
-		let data = dispatch_data_copy_region(__wrapped, location, &offset)
+		let data = CDispatch.dispatch_data_copy_region(__wrapped, location, &offset)
 		return (DispatchData(data: data), offset)
 	}
 
@@ -246,7 +246,7 @@ public struct DispatchDataIterator : IteratorProtocol, Sequence {
 	public init(_data: DispatchData) {
 		var ptr: UnsafePointer<Void>?
 		self._count = 0
-		self._data = dispatch_data_create_map(_data.__wrapped, &ptr, &self._count)
+		self._data = CDispatch.dispatch_data_create_map(_data.__wrapped, &ptr, &self._count)
 		self._ptr = UnsafePointer(ptr!)
 		self._position = _data.startIndex
 	}
