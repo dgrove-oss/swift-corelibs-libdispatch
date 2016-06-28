@@ -101,6 +101,7 @@ public extension DispatchSource {
 	}
 #endif
 
+#if HAVE_MACH
 	public struct MemoryPressureEvent : OptionSet, RawRepresentable {
 		public let rawValue: UInt
 		public init(rawValue: UInt) { self.rawValue = rawValue }
@@ -110,7 +111,9 @@ public extension DispatchSource {
 		public static let critical = MemoryPressureEvent(rawValue: 0x4)
 		public static let all: MemoryPressureEvent = [.normal, .warning, .critical]
 	}
+#endif
 
+#if HAVE_MACH
 	public struct ProcessEvent : OptionSet, RawRepresentable {
 		public let rawValue: UInt
 		public init(rawValue: UInt) { self.rawValue = rawValue }
@@ -121,6 +124,7 @@ public extension DispatchSource {
 		public static let signal = ProcessEvent(rawValue: 0x08000000)
 		public static let all: ProcessEvent = [.exit, .fork, .exec, .signal]
 	}
+#endif
 
 	public struct TimerFlags : OptionSet, RawRepresentable {
 		public let rawValue: UInt
@@ -148,13 +152,15 @@ public extension DispatchSource {
 
 #if HAVE_MACH
 	public class func machSend(port: mach_port_t, eventMask: MachSendEvent, queue: DispatchQueue? = nil) -> DispatchSourceMachSend {
-		return dispatch_source_create(
-			_swift_dispatch_source_type_mach_send(), UInt(port), eventMask.rawValue, queue) as DispatchSourceMachSend
+		let source = dispatch_source_create(_swift_dispatch_source_type_mach_send(), UInt(port), eventMask.rawValue, queue?.__wrapped)
+		return DispatchSource(source: source) as DispatchSourceMachSend
 	}
-
+#endif
+	
+#if HAVE_MACH
 	public class func machReceive(port: mach_port_t, queue: DispatchQueue? = nil) -> DispatchSourceMachReceive {
-		return dispatch_source_create(
-			_swift_dispatch_source_type_mach_recv(), UInt(port), 0, queue) as DispatchSourceMachReceive
+		let source = dispatch_source_create(_swift_dispatch_source_type_mach_recv(), UInt(port), 0, queue?.__wrapped)
+		return DispatchSource(source) as DispatchSourceMachReceive
 	}
 #endif
 
@@ -165,10 +171,12 @@ public extension DispatchSource {
 	}
 #endif
 
+#if HAVE_MACH
 	public class func process(identifier: pid_t, eventMask: ProcessEvent, queue: DispatchQueue? = nil) -> DispatchSourceProcess {
 		let source = dispatch_source_create(_swift_dispatch_source_type_proc(), UInt(identifier), eventMask.rawValue, queue?.__wrapped)
 		return DispatchSource(source: source) as DispatchSourceProcess
 	}
+#endif
 
 	public class func read(fileDescriptor: Int32, queue: DispatchQueue? = nil) -> DispatchSourceRead {
 		let source = dispatch_source_create(_swift_dispatch_source_type_read(), UInt(fileDescriptor), 0, queue?.__wrapped)
@@ -246,7 +254,7 @@ public extension DispatchSourceMemoryPressure {
 }
 #endif
 
-#if false // crashes compiler
+#if HAVE_MACH
 public extension DispatchSourceProcess {
 	public var handle: pid_t {
 		return pid_t(dispatch_source_get_handle(self as! DispatchSource))
@@ -322,25 +330,22 @@ public extension DispatchSourceTimer {
 	}
 }
 
-#if false // crashes compiler
 public extension DispatchSourceFileSystemObject {
 	public var handle: Int32 {
-		return Int32(dispatch_source_get_handle(self as! DispatchSource))
+		return Int32(dispatch_source_get_handle((self as! DispatchSource).__wrapped))
 	}
 
 	public var data: DispatchSource.FileSystemEvent {
-		let data = dispatch_source_get_data(self as! DispatchSource)
+		let data = dispatch_source_get_data((self as! DispatchSource).__wrapped)
 		return DispatchSource.FileSystemEvent(rawValue: data)
 	}
 
 	public var mask: DispatchSource.FileSystemEvent {
-		let data = dispatch_source_get_mask(self as! DispatchSource)
+		let data = dispatch_source_get_mask((self as! DispatchSource).__wrapped)
 		return DispatchSource.FileSystemEvent(rawValue: data)
 	}
 }
-#endif
 
-#if false // crashes compiler
 public extension DispatchSourceUserDataAdd {
 	/// @function mergeData
 	///
@@ -354,13 +359,12 @@ public extension DispatchSourceUserDataAdd {
 	/// as specified by the dispatch source type. A value of zero has no effect
 	/// and will not result in the submission of the event handler block.
 	public func mergeData(value: UInt) {
-		dispatch_source_merge_data(self as! DispatchSource, value)
+		dispatch_source_merge_data((self as! DispatchSource).__wrapped, value)
 	}
 }
-#endif
 
-#if false // crashes compiler
 public extension DispatchSourceUserDataOr {
+#if false /*FIXME: clashes with UserDataAdd?? */
 	/// @function mergeData
 	///
 	/// @abstract
@@ -373,10 +377,10 @@ public extension DispatchSourceUserDataOr {
 	/// as specified by the dispatch source type. A value of zero has no effect
 	/// and will not result in the submission of the event handler block.
 	public func mergeData(value: UInt) {
-		dispatch_source_merge_data(self as! DispatchSource, value)
+		dispatch_source_merge_data((self as! DispatchSource).__wrapped, value)
 	}
-}
 #endif
+}
 
 @_silgen_name("_swift_dispatch_source_type_DATA_ADD")
 internal func _swift_dispatch_source_type_data_add() -> dispatch_source_type_t

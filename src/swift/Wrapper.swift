@@ -115,8 +115,8 @@ public class DispatchQueue : DispatchObject {
 }
 
 public class DispatchSource : DispatchObject,
-	DispatchSourceType, DispatchSourceProcess,
-	DispatchSourceRead, DispatchSourceSignal, DispatchSourceTimer,
+	DispatchSourceType,	DispatchSourceRead,
+	DispatchSourceSignal, DispatchSourceTimer,
 	DispatchSourceUserDataAdd, DispatchSourceUserDataOr,
 	DispatchSourceFileSystemObject, DispatchSourceWrite {
 	internal let __wrapped:dispatch_source_t
@@ -153,13 +153,11 @@ public protocol DispatchSourceType {
 }
 
 public protocol DispatchSourceUserDataAdd : DispatchSourceType {
-#if false // crashes compiler
   func mergeData(value: UInt)
-#endif
 }
 
-public protocol DispatchSourceUserDataOr : DispatchSourceType {
-#if false // crashes compiler
+public protocol DispatchSourceUserDataOr {
+#if false /*FIXME: clashes with UserDataAdd?? */
   func mergeData(value: UInt)
 #endif
 }
@@ -174,7 +172,9 @@ public protocol DispatchSourceMachSend : DispatchSourceType {
   public var mask: DispatchSource.MachSendEvent { get }
 
 }
+#endif
 
+#if HAVE_MACH
 public protocol DispatchSourceMachReceive : DispatchSourceType {
   var handle: mach_port_t { get }
 }
@@ -190,15 +190,15 @@ public protocol DispatchSourceMemoryPressure : DispatchSourceType {
 }
 #endif
 
+#if HAVE_MACH
 public protocol DispatchSourceProcess : DispatchSourceType {
-#if false // crashes compiler
   var handle: pid_t { get }
 
   var data: DispatchSource.ProcessEvent { get }
 
   var mask: DispatchSource.ProcessEvent { get }
-#endif
 }
+#endif
 
 public protocol DispatchSourceRead : DispatchSourceType {
 
@@ -223,13 +223,11 @@ public protocol DispatchSourceTimer : DispatchSourceType {
 }
 
 public protocol DispatchSourceFileSystemObject : DispatchSourceType {
-#if false // crashes compiler
   var handle: Int32 { get }
 
   var data: DispatchSource.FileSystemEvent { get }
 
   var mask: DispatchSource.FileSystemEvent { get }
-#endif
 }
 
 public protocol DispatchSourceWrite : DispatchSourceType {
