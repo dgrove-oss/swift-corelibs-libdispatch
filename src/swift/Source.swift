@@ -12,51 +12,49 @@
 
 import CDispatch
 
-#if false // FIXME: todo!!
-
 public extension DispatchSourceType {
 	typealias DispatchSourceHandler = @convention(block) () -> Void
 
 	public func setEventHandler(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], handler: DispatchSourceHandler?) {
 		if #available(OSX 10.10, iOS 8.0, *), let h = handler where qos != .unspecified || !flags.isEmpty {
 			let item = DispatchWorkItem(qos: qos, flags: flags, block: h)
-			dispatch_source_set_event_handler(self as! DispatchSource, item._block)
+			CDispatch.dispatch_source_set_event_handler((self as! DispatchSource).__wrapped, item._block)
 		} else {
-			dispatch_source_set_event_handler(self as! DispatchSource, handler)
+			CDispatch.dispatch_source_set_event_handler((self as! DispatchSource).__wrapped, handler)
 		}
 	}
 
 	@available(OSX 10.10, iOS 8.0, *)
 	public func setEventHandler(handler: DispatchWorkItem) {
-		dispatch_source_set_event_handler(self as! DispatchSource, handler._block)
+		CDispatch.dispatch_source_set_event_handler((self as! DispatchSource).__wrapped, handler._block)
 	}
 
 	public func setCancelHandler(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], handler: DispatchSourceHandler?) {
 		if #available(OSX 10.10, iOS 8.0, *), let h = handler where qos != .unspecified || !flags.isEmpty {
 			let item = DispatchWorkItem(qos: qos, flags: flags, block: h)
-			dispatch_source_set_cancel_handler(self as! DispatchSource, item._block)
+			CDispatch.dispatch_source_set_cancel_handler((self as! DispatchSource).__wrapped, item._block)
 		} else {
-			dispatch_source_set_cancel_handler(self as! DispatchSource, handler)
+			CDispatch.dispatch_source_set_cancel_handler((self as! DispatchSource).__wrapped, handler)
 		}
 	}
 
 	@available(OSX 10.10, iOS 8.0, *)
 	public func setCancelHandler(handler: DispatchWorkItem) {
-		dispatch_source_set_cancel_handler(self as! DispatchSource, handler._block)
+		CDispatch.dispatch_source_set_cancel_handler((self as! DispatchSource).__wrapped, handler._block)
 	}
 
 	public func setRegistrationHandler(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], handler: DispatchSourceHandler?) {
 		if #available(OSX 10.10, iOS 8.0, *), let h = handler where qos != .unspecified || !flags.isEmpty {
 			let item = DispatchWorkItem(qos: qos, flags: flags, block: h)
-			dispatch_source_set_registration_handler(self as! DispatchSource, item._block)
+			CDispatch.dispatch_source_set_registration_handler((self as! DispatchSource).__wrapped, item._block)
 		} else {
-			dispatch_source_set_registration_handler(self as! DispatchSource, handler)
+			CDispatch.dispatch_source_set_registration_handler((self as! DispatchSource).__wrapped, handler)
 		}
 	}
 
 	@available(OSX 10.10, iOS 8.0, *)
 	public func setRegistrationHandler(handler: DispatchWorkItem) {
-		dispatch_source_set_registration_handler(self as! DispatchSource, handler._block)
+		CDispatch.dispatch_source_set_registration_handler((self as! DispatchSource).__wrapped, handler._block)
 	}
 
 	@available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
@@ -65,7 +63,7 @@ public extension DispatchSourceType {
 	}
 
 	public func cancel() {
-		dispatch_source_cancel(self as! DispatchSource)
+		CDispatch.dispatch_source_cancel((self as! DispatchSource).__wrapped)
 	}
 
 	public func resume() {
@@ -77,19 +75,19 @@ public extension DispatchSourceType {
 	}
 
 	public var handle: UInt {
-		return dispatch_source_get_handle(self as! DispatchSource)
+		return CDispatch.dispatch_source_get_handle((self as! DispatchSource).__wrapped)
 	}
 
 	public var mask: UInt {
-		return dispatch_source_get_mask(self as! DispatchSource)
+		return CDispatch.dispatch_source_get_mask((self as! DispatchSource).__wrapped)
 	}
 
 	public var data: UInt {
-		return dispatch_source_get_data(self as! DispatchSource)
+		return CDispatch.dispatch_source_get_data((self as! DispatchSource).__wrapped)
 	}
 
 	public var isCancelled: Bool {
-		return dispatch_source_testcancel(self as! DispatchSource) != 0
+		return CDispatch.dispatch_source_testcancel((self as! DispatchSource).__wrapped) != 0
 	}
 }
 
@@ -160,46 +158,51 @@ public extension DispatchSource {
 	}
 #endif
 
+#if HAVE_MACH
 	public class func memoryPressure(eventMask: MemoryPressureEvent, queue: DispatchQueue? = nil) -> DispatchSourceMemoryPressure {
 		let source = dispatch_source_create(_swift_dispatch_source_type_memorypressure(), 0, eventMask.rawValue, queue.__wrapped)
 		return DispatchSourceMemoryPressure(source)
 	}
+#endif
 
 	public class func process(identifier: pid_t, eventMask: ProcessEvent, queue: DispatchQueue? = nil) -> DispatchSourceProcess {
-		let source = dispatch_source_create(_swift_dispatch_source_type_proc(), UInt(identifier), eventMask.rawValue, queue.__wrapped)
-		return  DispatchSourceProcess(source)
+		let source = dispatch_source_create(_swift_dispatch_source_type_proc(), UInt(identifier), eventMask.rawValue, queue?.__wrapped)
+		return DispatchSource(source: source) as DispatchSourceProcess
 	}
 
 	public class func read(fileDescriptor: Int32, queue: DispatchQueue? = nil) -> DispatchSourceRead {
-		let source = dispatch_source_create(_swift_dispatch_source_type_read(), UInt(fileDescriptor), 0, queue.__wrapped)
-		return  DispatchSourceRead(source)
+		let source = dispatch_source_create(_swift_dispatch_source_type_read(), UInt(fileDescriptor), 0, queue?.__wrapped)
+		return DispatchSource(source: source) as DispatchSourceRead
 	}
 
 	public class func signal(signal: Int32, queue: DispatchQueue? = nil) -> DispatchSourceSignal {
-		let source = dispatch_source_create(_swift_dispatch_source_type_read(), UInt(signal), 0, queue.__wrapped)
-		return  DispatchSourceSignal(source)
+		let source = dispatch_source_create(_swift_dispatch_source_type_read(), UInt(signal), 0, queue?.__wrapped)
+		return DispatchSource(source: source) as DispatchSourceSignal
 	}
 
 	public class func timer(flags: TimerFlags = [], queue: DispatchQueue? = nil) -> DispatchSourceTimer {
-		return dispatch_source_create(_swift_dispatch_source_type_timer(), 0, flags.rawValue, queue) as DispatchSourceTimer
+		let source = dispatch_source_create(_swift_dispatch_source_type_timer(), 0, flags.rawValue, queue?.__wrapped)
+		return DispatchSource(source: source) as DispatchSourceTimer
 	}
 
 	public class func userDataAdd(queue: DispatchQueue? = nil) -> DispatchSourceUserDataAdd {
-		return dispatch_source_create(_swift_dispatch_source_type_data_add(), 0, 0, queue) as DispatchSourceUserDataAdd
+		let source = dispatch_source_create(_swift_dispatch_source_type_data_add(), 0, 0, queue?.__wrapped)
+		return DispatchSource(source: source) as DispatchSourceUserDataAdd
 	}
 
 	public class func userDataOr(queue: DispatchQueue? = nil) -> DispatchSourceUserDataOr {
-		return dispatch_source_create(_swift_dispatch_source_type_data_or(), 0, 0, queue) as DispatchSourceUserDataOr
+		let source = dispatch_source_create(_swift_dispatch_source_type_data_or(), 0, 0, queue?.__wrapped)
+		return DispatchSource(source: source) as DispatchSourceUserDataOr
 	}
 
 	public class func fileSystemObject(fileDescriptor: Int32, eventMask: FileSystemEvent, queue: DispatchQueue? = nil) -> DispatchSourceFileSystemObject {
-		return dispatch_source_create(
-			_swift_dispatch_source_type_vnode(), UInt(fileDescriptor), eventMask.rawValue, queue) as DispatchSourceFileSystemObject
+		let source = dispatch_source_create(_swift_dispatch_source_type_vnode(), UInt(fileDescriptor), eventMask.rawValue, queue?.__wrapped)
+		return DispatchSource(source: source) as DispatchSourceFileSystemObject
 	}
 
 	public class func write(fileDescriptor: Int32, queue: DispatchQueue? = nil) -> DispatchSourceWrite {
-		return dispatch_source_create(
-			_swift_dispatch_source_type_write(), UInt(fileDescriptor), 0, queue) as DispatchSourceWrite
+		let source = dispatch_source_create(_swift_dispatch_source_type_write(), UInt(fileDescriptor), 0, queue?.__wrapped)
+		return DispatchSource(source: source) as DispatchSourceWrite
 	}
 }
 
@@ -229,6 +232,7 @@ public extension DispatchSourceMachReceive {
 }
 #endif
 
+#if HAVE_MACH
 public extension DispatchSourceMemoryPressure {
 	public var data: DispatchSource.MemoryPressureEvent {
 		let data = dispatch_source_get_data(self as! DispatchSource)
@@ -240,7 +244,9 @@ public extension DispatchSourceMemoryPressure {
 		return DispatchSource.MemoryPressureEvent(rawValue: mask)
 	}
 }
+#endif
 
+#if false // crashes compiler
 public extension DispatchSourceProcess {
 	public var handle: pid_t {
 		return pid_t(dispatch_source_get_handle(self as! DispatchSource))
@@ -256,7 +262,9 @@ public extension DispatchSourceProcess {
 		return DispatchSource.ProcessEvent(rawValue: mask)
 	}
 }
+#endif
 
+#if false // crashes compiler
 public extension DispatchSourceTimer {
 	public func scheduleOneshot(deadline: DispatchTime, leeway: DispatchTimeInterval = .nanoseconds(0)) {
 		dispatch_source_set_timer(self as! DispatchSource, deadline.rawValue, ~0, UInt64(leeway.rawValue))
@@ -282,7 +290,9 @@ public extension DispatchSourceTimer {
 		dispatch_source_set_timer(self as! DispatchSource, wallDeadline.rawValue, UInt64(interval * Double(NSEC_PER_SEC)), UInt64(leeway.rawValue))
 	}
 }
+#endif
 
+#if false // crashes compiler
 public extension DispatchSourceTimer {
 	@available(*, deprecated, renamed: "DispatchSourceTimer.scheduleOneshot(self:deadline:leeway:)")
 	public func setTimer(start: DispatchTime, leeway: DispatchTimeInterval = .nanoseconds(0)) {
@@ -314,7 +324,9 @@ public extension DispatchSourceTimer {
 		scheduleRepeating(wallDeadline: start, interval: interval, leeway: leeway)
 	}
 }
+#endif
 
+#if false // crashes compiler
 public extension DispatchSourceFileSystemObject {
 	public var handle: Int32 {
 		return Int32(dispatch_source_get_handle(self as! DispatchSource))
@@ -330,7 +342,9 @@ public extension DispatchSourceFileSystemObject {
 		return DispatchSource.FileSystemEvent(rawValue: data)
 	}
 }
+#endif
 
+#if false // crashes compiler
 public extension DispatchSourceUserDataAdd {
 	/// @function mergeData
 	///
@@ -347,7 +361,9 @@ public extension DispatchSourceUserDataAdd {
 		dispatch_source_merge_data(self as! DispatchSource, value)
 	}
 }
+#endif
 
+#if false // crashes compiler
 public extension DispatchSourceUserDataOr {
 	/// @function mergeData
 	///
@@ -364,6 +380,7 @@ public extension DispatchSourceUserDataOr {
 		dispatch_source_merge_data(self as! DispatchSource, value)
 	}
 }
+#endif
 
 @_silgen_name("_swift_dispatch_source_type_DATA_ADD")
 internal func _swift_dispatch_source_type_data_add() -> dispatch_source_type_t
@@ -398,4 +415,3 @@ internal func _swift_dispatch_source_type_vnode() -> dispatch_source_type_t
 @_silgen_name("_swift_dispatch_source_type_WRITE")
 internal func _swift_dispatch_source_type_write() -> dispatch_source_type_t
 
-#endif

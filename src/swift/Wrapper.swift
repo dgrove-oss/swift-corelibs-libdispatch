@@ -114,7 +114,11 @@ public class DispatchQueue : DispatchObject {
 	}
 }
 
-public class DispatchSource : DispatchObject {
+public class DispatchSource : DispatchObject,
+	DispatchSourceType, DispatchSourceProcess,
+	DispatchSourceRead, DispatchSourceSignal, DispatchSourceTimer,
+	DispatchSourceUserDataAdd, DispatchSourceUserDataOr,
+	DispatchSourceFileSystemObject, DispatchSourceWrite {
 	internal let __wrapped:dispatch_source_t
 
 	internal init(source:dispatch_source_t) {
@@ -122,9 +126,8 @@ public class DispatchSource : DispatchObject {
 	}
 }
 
-#if false /* Source is annoying... */
-
 public protocol DispatchSourceType {
+#if false // crashes compiler
   typealias DispatchSourceHandler = @convention(block) () -> Void
 
   func setEventHandler(handler: DispatchSourceHandler?)
@@ -146,18 +149,19 @@ public protocol DispatchSourceType {
   var data: UInt { get }
 
   var isCancelled: Bool { get }
+#endif
 }
 
 public protocol DispatchSourceUserDataAdd : DispatchSourceType {
-
+#if false // crashes compiler
   func mergeData(value: UInt)
-
+#endif
 }
 
 public protocol DispatchSourceUserDataOr : DispatchSourceType {
-
+#if false // crashes compiler
   func mergeData(value: UInt)
-
+#endif
 }
 
 #if HAVE_MACH
@@ -176,6 +180,7 @@ public protocol DispatchSourceMachReceive : DispatchSourceType {
 }
 #endif
 
+#if HAVE_MACH
 public protocol DispatchSourceMemoryPressure : DispatchSourceType {
 
   public var data: DispatchSource.MemoryPressureEvent { get }
@@ -183,15 +188,16 @@ public protocol DispatchSourceMemoryPressure : DispatchSourceType {
   public var mask: DispatchSource.MemoryPressureEvent { get }
 
 }
+#endif
 
 public protocol DispatchSourceProcess : DispatchSourceType {
-
+#if false // crashes compiler
   var handle: pid_t { get }
 
   var data: DispatchSource.ProcessEvent { get }
 
   var mask: DispatchSource.ProcessEvent { get }
-
+#endif
 }
 
 public protocol DispatchSourceRead : DispatchSourceType {
@@ -203,7 +209,7 @@ public protocol DispatchSourceSignal : DispatchSourceType {
 }
 
 public protocol DispatchSourceTimer : DispatchSourceType {
-
+#if false // crashes compiler
   func setTimer(start: DispatchTime, leeway: DispatchTimeInterval)
 
   func setTimer(walltime start: DispatchWalltime, leeway: DispatchTimeInterval)
@@ -215,26 +221,22 @@ public protocol DispatchSourceTimer : DispatchSourceType {
   func setTimer(walltime start: DispatchWalltime, interval: DispatchTimeInterval, leeway: DispatchTimeInterva)
 
   func setTimer(walltime start: DispatchWalltime, interval: Double, leeway: DispatchTimeInterval)
-
+#endif
 }
 
 public protocol DispatchSourceFileSystemObject : DispatchSourceType {
-
+#if false // crashes compiler
   var handle: Int32 { get }
 
   var data: DispatchSource.FileSystemEvent { get }
 
   var mask: DispatchSource.FileSystemEvent { get }
-
+#endif
 }
 
 public protocol DispatchSourceWrite : DispatchSourceType {
 
 }
-
-
-#endif // end Source is annoying...
-
 
 
 internal enum _OSQoSClass : UInt32  {
