@@ -189,7 +189,7 @@ _dispatch_epoll_update(dispatch_muxnote_t dmn, int op)
 	if (op == EPOLL_CTL_ADD) {
 		op_name = "EPOLL_CTL_ADD";
 	} else if (op == EPOLL_CTL_MOD) {
-		op_name = "EPOLL_CTL_ADD";
+		op_name = "EPOLL_CTL_MOD";
 	} else if (op == EPOLL_CTL_DEL) {
 		op_name = "EPOLL_CTL_DEL";
 	}
