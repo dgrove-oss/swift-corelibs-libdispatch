@@ -184,6 +184,18 @@ _dispatch_epoll_update(dispatch_muxnote_t dmn, int op)
 		.events = dmn->dmn_events,
 		.data = { .ptr = dmn },
 	};
+
+	char* op_name = "UNKNOWN";
+	if (op == EPOLL_CTL_ADD) {
+		op_name = "EPOLL_CTL_ADD";
+	} else if (op == EPOLL_CTL_MOD) {
+		op_name = "EPOLL_CTL_ADD";
+	} else if (op == EPOLL_CTL_DEL) {
+		op_name = "EPOLL_CTL_DEL";
+	}
+	printf("libdispatch: epoll_ctl called on fd %d with data %p and operation %s\n", dmn->dmn_fd, dmn, op_name);
+	fflush(stdout);
+
 	return epoll_ctl(_dispatch_epfd, op, dmn->dmn_fd, &ev);
 }
 
@@ -294,6 +306,8 @@ _dispatch_unote_unregister(dispatch_unote_t du, uint32_t flags)
 		} else if (events & (EPOLLIN | EPOLLOUT)) {
 			_dispatch_epoll_update(dmn, EPOLL_CTL_MOD);
 		} else {
+			printf("libdispatch: epoll_ctl called on fd %d with operation EPOLL_CTL_DEL\n", dmn->dmn_fd);
+			fflush(stdout);
 			epoll_ctl(_dispatch_epfd, EPOLL_CTL_DEL, dmn->dmn_fd, NULL);
 			TAILQ_REMOVE(_dispatch_unote_muxnote_bucket(du), dmn, dmn_list);
 			_dispatch_muxnote_dispose(dmn);
@@ -551,6 +565,8 @@ retry:
 				break;
 
 			case EVFILT_READ:
+				printf("\tlibdispatch: epoll_wait returned with ready EVFILT_READ on fd %d with data %p\n", dmn->dmn_fd, dmn);
+				fflush(stdout);
 				_dispatch_event_merge_fd(dmn, ev[i].events);
 				break;
 			}
