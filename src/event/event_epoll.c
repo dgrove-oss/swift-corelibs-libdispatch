@@ -565,7 +565,7 @@ retry:
 				break;
 
 			case EVFILT_READ:
-				printf("\tlibdispatch: epoll_wait returned with ready EVFILT_READ on fd %d with data %p\n", dmn->dmn_fd, dmn);
+				printf("libdispatch: epoll_wait returned with ready EVFILT_READ on fd %d with data %p\n", dmn->dmn_fd, dmn);
 				fflush(stdout);
 				_dispatch_event_merge_fd(dmn, ev[i].events);
 				break;
