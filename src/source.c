@@ -814,8 +814,10 @@ unregister_event:
 		// on the target queue. Some sources need to be rearmed on the kevent
 		// queue after event delivery.
 		if (dq == ds->do_targetq) {
-			printf("libdispatch: about to invoke handler for dispatch source %p\n", ds);
-			fflush(stdout);
+			if (!dr->du_is_timer) {
+				printf("libdispatch: about to invoke handler for dispatch source %p\n", ds);
+				fflush(stdout);
+			}
 			_dispatch_source_latch_and_call(ds, dq, flags);
 			dqf = _dispatch_queue_atomic_flags(ds->_as_dq);
 
